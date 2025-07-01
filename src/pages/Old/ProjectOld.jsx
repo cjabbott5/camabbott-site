@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import Layout from '../components/layout/Layout';
+import Layout from '../../components/layout/Layout';
 import Thread from "@/components/visuals/AnimatedThreads";
-import VantaBackground from '../components/visuals/VantaBackground';
+import VantaBackground from '../../components/visuals/VantaBackground';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -20,38 +20,38 @@ const fadeInUp = {
 
 const flowSteps = [
   {
-    phase: "Contribute",
-    title: "Add to the record",
+    phase: "Collect",
+    title: "Share Your Story",
     description:
-     "We collect stories and statistics that the system failed to capture—because what’s undocumented can’t be challenged.", 
+      "We gather lived experience through story, survey, and conversation—because the system isn’t asking the right questions.",
     link: "/rebuild/collection",
   },
   {
-    phase: "The Records",
-    title: "View what's been shared",
+    phase: "Collate",
+    title: "Trace the Patterns",
     description:
-      "Explore the archive of lived experience: narrative, numerical, and undeniable.",
+      "We analyze patterns, pain points, and shared truths to understand where systems fail and how they could respond differently.",
     link: "/rebuild/responses",
   },
   {
-    phase: "The Case",
-    title: "What the records prove",
+    phase: "Create",
+    title: "Build the Future",
     description:
-       "We trace recurring failures and build public evidence of systemic harm—and begin to imagine what true care might look like.",
+      "We design early tools, frameworks, and interventions rooted in lived experience and systems thinking.",
     link: "/rebuild/build",
   },
   {
-    phase: "The Vision",
-    title: "Where we go from here.",
+    phase: "Connect",
+    title: "Imagine What’s Possible",
     description:
-      "This isn’t just critique. It’s a blueprint for rebuilding mental healthcare with dignity at its core.",
+      "We imagine what mental healthcare could be if it were built with dignity, equity, and community leadership at the center.",
     link: "/rebuild/vision",
   },
 ];
 
 
 
-export default function Home() {
+export default function Project() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -100,28 +100,29 @@ export default function Home() {
     variants={fadeInUp}
     custom={3}
   >
-      We’re building the record <br />they hoped no one would keep.
+    We’re tracing the pattern <br />they hoped no one would notice.<br />
 
   </motion.p>
 </section>
 
-      {/* Welcome Section */}
+
+        {/* Welcome Section */}
         <section className="bg-zinc-950 text-white py-16 px-6">
           <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
             <div className="flex justify-center">
               <div className="w-36 h-36 bg-zinc-800 rounded-full flex items-center justify-center text-5xl font-bold text-sky-300 shadow-lg">
-                LR
+                PR
               </div>
             </div>
             <div className="md:col-span-2">
-              <h2 className="text-3xl text-sky-300 font-semibold mb-8 text-center lg:text-left">Welcome to The Lost Records</h2>
+              <h2 className="text-3xl text-sky-300 font-semibold mb-8 text-center lg:text-left">Welcome to Project Rebuild</h2>
               <p className="text-zinc-300 text-xl leading-relaxed">
-              
-                There is a pattern of systemic harm in the U.S. mental healthcare system—one that’s been intentionally obscured, dismissed, and normalized. The public record is incomplete. And the personal harm is real, repeated, and often preventable.
+                Project Rebuild is a platform for transforming patient and provider pain into systemic change.
+                It was born from the silence—too many stories of harm, neglect, and survival erased or ignored. That silence isn’t just tragic. It’s strategic. And it’s time to break it.
                 <br /><br />
-                The Lost Records exists to change that.
-                <br /><br />
-                We gather stories, trace patterns, and are building a case for change—so that lived experience becomes public evidence. What was once buried can now be seen, understood, and used to reform what’s broken.
+                This project exists to gather those stories, trace the patterns beneath them, and build a foundation for true reform.
+               <br /><br />
+                Through storytelling, research, and systems strategy, Project Rebuild aims to create a living library of lived experience—one that informs policy, reshapes culture, and reimagines what mental healthcare could be.
               </p>
             </div>
           </div>
@@ -132,11 +133,9 @@ export default function Home() {
         {/* CardStack Section */}
        <section className="bg-zinc-950 text-white text-center py-6 px-6">
   <div className="max-w-7xl mx-auto text-center mb-12">
-    <h2 className="text-3xl font-semibold text-sky-300">How The Lost Records Work</h2>
-    <p className="text-zinc-400 text-2xl mt-4 max-w-6xl mx-auto">
-      This is how change begins. 
-       <br /><br />
-      We gather what was overlooked, misrepresented, or erased—and use it to build a collective case for a better system. Each phase helps shift the narrative, transforming lived experience into undeniable evidence for what must change and what could be rebuilt.
+    <h2 className="text-3xl font-semibold text-sky-300">How Project Rebuild Works</h2>
+    <p className="text-zinc-400 text-2xl mt-4 max-w-2xl mx-auto">
+      This project follows a four-phase flow—each step builds from the last, grounded in lived experience and systems thinking.
     </p>
   </div>
 
@@ -206,7 +205,7 @@ export default function Home() {
             variants={fadeInUp}
             custom={2}
           >
-            What if our stories weren’t buried in intake notes or discharge papers—<br />but lifted up, examined, and woven together as evidence for change?
+            What if our stories weren’t buried in intake notes or discharge papers—but lifted up, examined, and woven together as evidence for change?
           </motion.p>
         </section>
 
@@ -222,11 +221,16 @@ export default function Home() {
     variants={fadeInUp}
     custom={3}
   >
-    This is how we build the records that can’t be ignored.<br />
-The ones that shift policy, reshape care, and rewrite what’s possible.<br />
-<br /><br></br>
-Together, we’re not just imagining a better system—<br />
-we’re documenting the evidence to make it real.
+    Imagine a world where patient experiences were treated as data.
+    Where provider insights were honored as strategy.
+    Where the people most impacted by the system had the power to rebuild it.
+    <br /><br />
+    <span className="block font-semibold text-white">
+      That’s the vision.
+    </span>
+    <span className="block font-semibold text-white">
+      That’s the project.
+    </span>
   </motion.p>
 </section>
 
@@ -241,19 +245,19 @@ we’re documenting the evidence to make it real.
   >
     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
       <Link
-        to="/collection/story"
+        to="/foundation/add"
         className="inline-block bg-white text-neutral-900 px-5 py-4 text-xl font-semibold rounded-lg shadow-md hover:bg-sky-300 transition"
       >
         Share Your Story
       </Link>
       <Link
-        to="/responses/numbers"
+        to="/foundation/data"
         className="inline-block bg-white text-neutral-900 px-8 py-4 text-xl font-semibold rounded-lg shadow-md hover:bg-sky-300 transition"
       >
         View the Data
       </Link>
       <Link
-        to="/vision"
+        to="/foundation/vision"
         className="inline-block bg-white text-neutral-900 px-8 py-4 text-xl font-semibold rounded-lg shadow-md hover:bg-sky-300 transition"
       >
         See the Vision

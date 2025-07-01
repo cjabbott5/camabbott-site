@@ -1,57 +1,57 @@
-// src/App.jsx
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useRef } from "react";
 
-// top-level pages
-import Home from './pages/Home'
-import Contact from './pages/Contact'
+// Main Pages
+import Home from "./pages/Home";
+import TheCollection from "./pages/TheCollection";
+import TheCase from "./pages/TheCase";
+import TheResponses from "./pages/TheResponses";
+import TheVision from "./pages/TheVision";
 
-// “Working Together” sub-pages
-import Individuals from './pages/WorkingTogether/Individuals'
-import Therapists from './pages/WorkingTogether/Therapists'
-import Organizations from './pages/WorkingTogether/Organizations'
+// Subpages — Collection
+import ShareYourStory from "./pages/CollectionPages/ShareYourStory";
+import ShareYourStats from "./pages/CollectionPages/ShareYourStats";
 
-// “About Cam” sub-pages
-import Story from './pages/AboutCam/Story'
-import Projects from './pages/AboutCam/Projects'
-import ThreeWords from './pages/AboutCam/ThreeWords'
+// Subpages — Responses
+import Narratives from "./pages/ResponsesPages/Narratives";
+import Numbers from "./pages/ResponsesPages/Numbers";
 
-// “Resources” sub-pages
-import Essays from './pages/Resources/Essays'
-import Tools from './pages/Resources/Tools'
+// Subpages — Vision
+import AboutTheFounder from "./pages/VisionPages/AboutTheFounder";
+import AboutTheFuture from "./pages/VisionPages/AboutTheFuture";
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <div className="bg-white text-gray-900 min-h-screen flex flex-col">
-        <Navbar />
+    
+    <Router>
+      <div className="min-h-screen bg-black text-white flex flex-col">
         <main className="flex-grow">
           <Routes>
-            {/* top-level */}
+            {/* Home Root */}
             <Route path="/" element={<Home />} />
-            <Route path="/contact" element={<Contact />} />
+            <Route path="/home" element={<Home />} />
 
-            {/* Working Together */}
-            <Route path="/individuals" element={<Individuals />} />
-            <Route path="/therapists" element={<Therapists />} />
-            <Route path="/organizations" element={<Organizations />} />
+            {/* Collection */}
+            <Route path="/collection" element={<TheCollection />} />
+            <Route path="/collection/story" element={<ShareYourStory />} />
+            <Route path="/collection/stats" element={<ShareYourStats />} />
 
-            {/* About Cam */}
-            <Route path="/story" element={<Story />} />
-            <Route path="/projects" element={<Projects />} />
-            <Route path="/threewords" element={<ThreeWords />} />
+            {/* The Case */}
+            <Route path="/case" element={<TheCase />} />
 
-            {/* Resources */}
-            <Route path="/essays"   element={<Essays />} />
-            <Route path="/tools"    element={<Tools />} />
+            {/* Responses */}
+            <Route path="/responses" element={<TheResponses />} />
+            <Route path="/responses/narratives" element={<Narratives />} />
+            <Route path="/responses/numbers" element={<Numbers />} />
 
-            {/* fallback */}
-            <Route path="*" element={<Home />} />
+            {/* Vision */}
+            <Route path="/vision" element={<TheVision />} />
+            <Route path="/vision/founder" element={<AboutTheFounder />} />
+            <Route path="/vision/future" element={<AboutTheFuture />} />
           </Routes>
         </main>
-        <Footer />
       </div>
-    </BrowserRouter>
-  )
+    </Router>
+  );
 }
