@@ -81,15 +81,15 @@ export default function Home() {
     >
       Have you ever mourned the brokenness of our mental healthcare system?
     </motion.h1>
-    <motion.p
-      className="text-xl italic md:text-2xl mt-12 max-w-3xl"
-      initial="hidden"
-      animate="visible"
-      variants={fadeInUp}
-      custom={2}
-    >
-      You were never the only one. <br className="sm:hidden" /> The system just made you feel like it.
-    </motion.p>
+   <motion.p
+  className="mt-12 sm:mt-24 text-lg sm:text-xl md:text-2xl font-bold text-sky-300 max-w-md text-center sm:text-right z-20 px-4"
+  initial="hidden"
+  animate="visible"
+  variants={fadeInUp}
+  custom={3}
+>
+  We’re building the record <br /> they hoped no one would keep.
+</motion.p>
   </div>
 
   {/* Bottom-Aligned Tagline */}
