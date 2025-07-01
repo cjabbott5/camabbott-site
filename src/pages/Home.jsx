@@ -61,48 +61,48 @@ export default function Home() {
       <Thread> </Thread>
       <div className="bg-neutral-950 text-white font-sans">
 
-       {/* Hero Section */}
+      {/* Hero Section */}
 <section
-  className="relative min-h-screen text-white bg-cover bg-center"
+  className="relative min-h-screen text-white bg-cover bg-center flex flex-col justify-center items-center px-4 sm:px-6"
   style={{
     backgroundImage:
       "url('https://plus.unsplash.com/premium_photo-1665203413600-ee7d9e883e97?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')"
   }}
 >
-  <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+  {/* Dark overlay */}
+  <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
 
-  {/* Centered Content */}
-  <div className="relative z-10 flex flex-col justify-center items-center text-center px-6 min-h-screen">
+  {/* Main content */}
+  <div className="relative z-10 w-full max-w-4xl text-center py-24">
     <motion.h1
-      className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold drop-shadow-lg leading-tight"
+      className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight drop-shadow-lg"
       initial="hidden"
       animate="visible"
       variants={fadeInUp}
     >
       Have you ever mourned the brokenness of our mental healthcare system?
     </motion.h1>
-   <motion.p
-  className="mt-12 sm:mt-24 text-lg sm:text-xl md:text-2xl font-bold text-sky-300 max-w-md text-center sm:text-right z-20 px-4"
-  initial="hidden"
-  animate="visible"
-  variants={fadeInUp}
-  custom={3}
->
-  We’re building the record <br /> they hoped no one would keep.
-</motion.p>
+
+    <motion.p
+      className="mt-8 text-lg sm:text-xl md:text-2xl italic"
+      initial="hidden"
+      animate="visible"
+      variants={fadeInUp}
+      custom={2}
+    >
+      You were never the only one. <br className="sm:hidden" /> The system just made you feel like it.
+    </motion.p>
+
+    <motion.p
+      className="mt-12 text-base sm:text-lg md:text-xl font-bold text-sky-300 max-w-lg mx-auto sm:ml-auto sm:text-right text-center"
+      initial="hidden"
+      animate="visible"
+      variants={fadeInUp}
+      custom={3}
+    >
+      We’re building the record <br /> they hoped no one would keep.
+    </motion.p>
   </div>
-
-  {/* Bottom-Aligned Tagline */}
-  <motion.p
-    className="absolute bottom-24 right-6 text-2xl font-bold text-sky-300 md:text-3xl sm:text-xl sm:mb-2 max-w-2xl text-right z-20"
-    initial="hidden"
-    animate="visible"
-    variants={fadeInUp}
-    custom={3}
-  >
-      We’re building the record <br />they hoped no one would keep.
-
-  </motion.p>
 </section>
 
       {/* Welcome Section */}
