@@ -74,7 +74,7 @@ export default function Home() {
   {/* Centered Content */}
   <div className="relative z-10 flex flex-col justify-center items-center text-center px-6 min-h-screen">
     <motion.h1
-      className="text-5xl md:text-6xl font-bold drop-shadow-lg leading-tight"
+      className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold drop-shadow-lg leading-tight"
       initial="hidden"
       animate="visible"
       variants={fadeInUp}
@@ -94,7 +94,7 @@ export default function Home() {
 
   {/* Bottom-Aligned Tagline */}
   <motion.p
-    className="absolute bottom-24 right-6 text-2xl font-bold text-sky-300 md:text-3xl sm:mb-4 max-w-2xl text-right z-20"
+    className="absolute bottom-24 right-6 text-2xl font-bold text-sky-300 md:text-3xl sm:text-xl sm:mb-2 max-w-2xl text-right z-20"
     initial="hidden"
     animate="visible"
     variants={fadeInUp}
