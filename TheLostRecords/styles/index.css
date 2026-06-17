@@ -10,3 +10,14 @@ body {
 a {
   @apply text-sky-400 dark:text-sky-200 hover:underline;
 }
+
+@keyframes lr-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+@keyframes lr-sweep {
+  0% { transform: translateX(-60%); opacity: 0; }
+  30% { opacity: 0.9; }
+  100% { transform: translateX(60%); opacity: 0; }
+}
