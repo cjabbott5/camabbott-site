@@ -1,31 +1,43 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
-import Research from './pages/Work/Research'
-import Resources from './pages/Work/Resources'
-import Essays from './pages/Work/Essays'
+import Educate from './pages/Educate'
+import Engage from './pages/Engage'
+import Empower from './pages/Empower'
 import About from './pages/About'
 import Contact from './pages/Contact'
+
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  return null
+}
 
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="bg-cream text-ink min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/research" element={<Research />} />
-            <Route path="/resources" element={<Resources />} />
-            <Route path="/essays" element={<Essays />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="*" element={<Home />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+      <ScrollToTop />
+      <Navbar />
+      <main>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/educate" element={<Educate />} />
+          <Route path="/engage" element={<Engage />} />
+          <Route path="/empower" element={<Empower />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+
+          {/* redirects from the old structure */}
+          <Route path="/research" element={<Navigate to="/educate" replace />} />
+          <Route path="/resources" element={<Navigate to="/empower" replace />} />
+          <Route path="/essays" element={<Navigate to="/engage" replace />} />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
+      <Footer />
     </BrowserRouter>
   )
 }

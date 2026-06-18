@@ -2,54 +2,43 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
-import Thread from "../components/visuals/AnimatedThreads";
-import VantaBackground from '../components/visuals/VantaBackground';
 
 const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i = 1) => ({
+  hidden: { opacity: 0, y: 20 },
+  visible: (i = 0) => ({
     opacity: 1,
     y: 0,
-    transition: {
-      delay: i * 0.3,
-      duration: 0.8,
-      ease: 'easeOut'
-    }
-  })
+    transition: { delay: i * 0.12, duration: 0.6, ease: 'easeOut' },
+  }),
 };
 
 const flowSteps = [
   {
-    phase: "Contribute",
-    title: "Add to the record",
-    description:
-     "We collect stories and statistics that the system failed to capture—because what’s undocumented can’t be challenged.", 
-    link: "/collection",
+    phase: 'Contribute',
+    description: 'Add your experience, as a story or a few quick questions.',
+    link: '/collection',
   },
   {
-    phase: "The Records",
-    title: "View what's been shared",
-    description:
-      "Explore the archive of lived experience: narrative, numerical, and undeniable.",
-    link: "/responses",
+    phase: 'The Records',
+    description: 'See what others have shared, in their words and in the numbers.',
+    link: '/responses',
   },
   {
-    phase: "The Case",
-    title: "What the records prove",
-    description:
-       "We trace recurring failures and build public evidence of systemic harm—and begin to imagine what true care might look like.",
-    link: "/build",
+    phase: 'The Case',
+    description: 'We trace the patterns and build the evidence for what needs to change.',
+    link: '/case',
   },
   {
-    phase: "The Vision",
-    title: "Where we go from here.",
-    description:
-      "This isn’t just critique. It’s a blueprint for rebuilding mental healthcare with dignity at its core.",
-    link: "/vision",
+    phase: 'The Vision',
+    description: "Where we're headed: care rebuilt around dignity, agency, and trust.",
+    link: '/vision',
   },
 ];
 
-
+const primaryBtn =
+  'w-full sm:w-auto inline-flex justify-center bg-accent text-accent-ink font-semibold px-6 py-4 rounded-xl hover:bg-accent-soft transition';
+const secondaryBtn =
+  'w-full sm:w-auto inline-flex justify-center border border-hairline text-ink font-semibold px-6 py-4 rounded-xl hover:border-accent transition';
 
 export default function Home() {
   useEffect(() => {
@@ -58,216 +47,155 @@ export default function Home() {
 
   return (
     <Layout>
-      <Thread> </Thread>
-      <div className="bg-neutral-950 text-white font-sans">
+      <div className="text-ink">
+        {/* HERO — recognition + plain "what this is" + action */}
+        <section className="relative overflow-hidden rounded-2xl">
+          <div className="absolute inset-0 -z-10 bg-gradient-to-b from-base via-surface to-base" />
+          <div
+            className="absolute inset-0 -z-10"
+            style={{
+              background:
+                'radial-gradient(70% 55% at 50% 0%, rgba(88,198,230,0.14), transparent 70%)',
+            }}
+          />
 
-      {/* Hero Section */}
-<section
-  className="relative min-h-screen text-white bg-cover bg-center flex flex-col justify-center items-center px-4 sm:px-6"
-  style={{
-    backgroundImage:
-      "url('https://plus.unsplash.com/premium_photo-1665203413600-ee7d9e883e97?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')"
-  }}
->
-  {/* Dark overlay */}
-  <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
-
-  {/* Main content */}
-  <div className="relative z-10 w-full max-w-4xl text-center py-24">
-    <motion.h1
-      className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight drop-shadow-lg"
-      initial="hidden"
-      animate="visible"
-      variants={fadeInUp}
-    >
-      Have you ever mourned the brokenness of our mental healthcare system?
-    </motion.h1>
-
-    <motion.p
-      className="mt-8 text-lg sm:text-xl md:text-2xl italic"
-      initial="hidden"
-      animate="visible"
-      variants={fadeInUp}
-      custom={2}
-    >
-      You were never the only one. <br className="sm:hidden" /> The system just made you feel like it.
-    </motion.p>
-
-    <motion.p
-      className="mt-12 text-base sm:text-lg md:text-xl font-bold text-sky-300 max-w-lg mx-auto sm:ml-auto sm:text-right text-center"
-      initial="hidden"
-      animate="visible"
-      variants={fadeInUp}
-      custom={3}
-    >
-      We’re building the record <br /> they hoped no one would keep.
-    </motion.p>
-  </div>
-</section>
-
-      {/* Welcome Section */}
-   <section className="bg-zinc-950 text-white py-16 px-6">
-  <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-
-    <div className="flex flex-col items-center justify-center">
-      <div className="w-40 h-40 rounded-full bg-zinc-800 flex items-center justify-center shadow-xl ring-2 ring-sky-400">
-  <img src="/logo-icon-new.png" alt="The Lost Records logo" className="w-28 h-28" />
-</div>
-    </div>
-
-    <div className="md:col-span-2">
-      <h2 className="text-3xl text-sky-300 font-semibold mb-8 text-center lg:text-left">
-        Welcome to The Lost Records
-      </h2>
-      <p className="text-zinc-300 text-xl leading-relaxed">
-        There is a pattern of systemic harm in the U.S. mental healthcare system—one that’s been intentionally obscured, dismissed, and normalized. The public record is incomplete. And the personal harm is real, repeated, and often preventable.
-        <br /><br />
-        The Lost Records exists to change that.
-        <br /><br />
-        We gather stories, trace patterns, and are building a case for change—so that lived experience becomes public evidence. What was once buried can now be seen, understood, and used to reform what’s broken.
-      </p>
-    </div>
-
-  </div>
-</section>
-
-
-
-<div className="h-px w-1/2 bg-sky-300 my-16 mx-auto" />
-
-        {/* CardStack Section */}
-       <section className="bg-zinc-950 text-white text-center py-6 px-6">
-  <div className="max-w-7xl mx-auto text-center mb-12">
-    <h2 className="text-3xl font-semibold text-sky-300">How the Lost Records Work</h2>
-    <p className="text-zinc-400 text-2xl mt-4 max-w-6xl mx-auto">
-      This is how change begins. 
-       <br /><br />
-      We gather what was overlooked, misrepresented, or erased—and use it to build a collective case for a better system. Each phase helps shift the narrative, transforming lived experience into undeniable evidence for what must change and what could be rebuilt.
-    </p>
-  </div>
-
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-    {flowSteps.map((step, index) => (
-      <div
-        key={step.phase}
-        className="bg-zinc-900 rounded-xl p-6 shadow-lg border border-zinc-800 hover:shadow-xl transition-shadow"
-      >
-        <div className="w-12 h-12 rounded-full bg-sky-300 text-black flex items-center justify-center font-bold text-2xl mb-4 mx-auto">
-          {index + 1}
-        </div>
-        <h3 className="text-2xl font-semibold mb-1">{step.phase}</h3>
-        <p className="text-sky-300 text-md italic underline mb-2">
-          <a href={step.link}>{step.title}</a>
-        </p>
-        <p className="text-zinc-400 text-md">{step.description}</p>
-      </div>
-    ))}
-  </div>
-</section>
-
-<div className="h-px w-1/2 bg-sky-300 my-16 mx-auto" />
-
-
-        {/* Section 1 */}
-        <section className="max-w-4xl mx-auto mb-16 px-6">
-          <motion.p
-            className="text-2xl text-center md:text-2xl leading-relaxed"
+          <motion.div
+            className="mx-auto max-w-2xl px-5 py-20 sm:py-28 text-center"
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
+            animate="visible"
           >
-            Whether you’ve lived through it as a patient or fought within it as a provider, those of us on the inside carry a truth that can’t be unseen.
-            <br /><br />
-            We know what it feels like to scream into silence. To be shuffled through a system that treats symptoms, not people. To try, and try again—only to feel more invisible, more drained, more alone.
-          </motion.p>
+            <motion.p
+              variants={fadeInUp}
+              custom={0}
+              className="text-accent text-sm sm:text-base tracking-wide mb-4"
+            >
+              You weren’t the only one.
+            </motion.p>
+
+            <motion.h1
+              variants={fadeInUp}
+              custom={1}
+              className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight"
+            >
+              Unburying what the system left out.
+            </motion.h1>
+
+            <motion.p
+              variants={fadeInUp}
+              custom={2}
+              className="mt-5 text-base sm:text-lg text-muted leading-relaxed"
+            >
+              The Lost Records gathers real experiences from patients, providers,
+              and advocates — and turns them into evidence the system can’t bury.
+            </motion.p>
+
+            <motion.div
+              variants={fadeInUp}
+              custom={3}
+              className="mt-8 flex flex-col sm:flex-row gap-3 sm:justify-center"
+            >
+              <Link to="/collection" className={primaryBtn}>
+                Share your experience
+              </Link>
+              <Link to="/responses" className={secondaryBtn}>
+                Explore the records
+              </Link>
+            </motion.div>
+          </motion.div>
         </section>
 
-       {/* Dramatic Interlude */}
-<section className="relative overflow-hidden text-center py-40 px-6 min-h-[300px]">
-  <VantaBackground />
+        {/* WHAT THIS IS — plain-language clarity */}
+        <motion.section
+          className="mx-auto max-w-2xl px-5 py-14 sm:py-16"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={fadeInUp}
+        >
+          <p className="text-base sm:text-lg text-muted leading-relaxed">
+            Medical records are written for billing, liability, and compliance —
+            not for the people living through care. So what actually happens often
+            goes undocumented, downplayed, or lost.
+          </p>
+          <p className="mt-4 text-base sm:text-lg text-ink leading-relaxed">
+            The Lost Records is where it gets written down. We collect experiences,
+            find the patterns, and build a public, referenceable archive to push
+            for reform — with dignity at the center.
+          </p>
+        </motion.section>
 
-  {/* Overlay container for text */}
-  <div className="relative z-10 flex justify-center items-center">
-    <motion.div
-      className="bg-black/40 backdrop-blur-sm px-6 py-4 rounded-md"
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      variants={fadeInUp}
-    >
-      <h2 className="text-5xl text-sky-300 font-bold">
-        But what if it didn’t end there?
-      </h2>
-    </motion.div>
-  </div>
-</section>
-        {/* Section 2 */}
-        <section className="max-w-4xl mx-auto mt-8 py-12 px-6">
-          <motion.p
-            className="text-2xl md:text-2xl text-sky-300 text-center leading-relaxed"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            custom={2}
-          >
-            What if our stories weren’t buried in intake notes or discharge papers—<br />but lifted up, examined, and woven together as evidence for change?
-          </motion.p>
+        {/* HOW IT WORKS — four tappable cards (real route links) */}
+        <section className="mx-auto max-w-5xl px-5 py-6">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-center text-accent mb-8">
+            How it works
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {flowSteps.map((step, index) => (
+              <Link
+                key={step.phase}
+                to={step.link}
+                className="block bg-surface rounded-xl p-5 border border-hairline hover:border-accent transition"
+              >
+                <div className="w-9 h-9 rounded-full bg-accent text-accent-ink flex items-center justify-center font-bold mb-4">
+                  {index + 1}
+                </div>
+                <h3 className="text-lg font-semibold mb-1">{step.phase}</h3>
+                <p className="text-sm text-muted leading-relaxed">
+                  {step.description}
+                </p>
+              </Link>
+            ))}
+          </div>
         </section>
 
-        <div className="h-px w-1/2 bg-sky-300 my-8 mx-auto" />
+        {/* WHOEVER YOU ARE — unity; blame on the system, not the people */}
+        <motion.section
+          className="mx-auto max-w-2xl px-5 py-14 sm:py-16"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={fadeInUp}
+        >
+          <h2 className="text-2xl sm:text-3xl font-semibold text-accent mb-4">
+            Whoever you are in this
+          </h2>
+          <p className="text-base sm:text-lg text-muted leading-relaxed">
+            You may have lived it as a patient, worked inside it as a provider, or
+            fought for change as an advocate. From every one of those seats, you’ve
+            seen the same thing: a system that too often loses the person inside the
+            paperwork.
+          </p>
+          <p className="mt-4 text-base sm:text-lg text-ink leading-relaxed">
+            That isn’t the fault of the people doing the work — it’s how the system
+            was built. This is where we document it together, and start to change
+            it.
+          </p>
+        </motion.section>
 
-       {/* Section 3 */}
-<section className="max-w-4xl mx-auto mb-12 py-12 px-6">
-  <motion.p
-    className="text-2xl md:text-2xl text-center leading-relaxed"
-    initial="hidden"
-    whileInView="visible"
-    viewport={{ once: true }}
-    variants={fadeInUp}
-    custom={3}
-  >
-    This is how we build the records that can’t be ignored.<br />
-The ones that shift policy, reshape care, and rewrite what’s possible.<br />
-<br /><br></br>
-Together, we’re not just imagining a better system—<br />
-we’re documenting the evidence to make it real.
-  </motion.p>
-</section>
-
-     {/* CTA */}
-<section className="text-center py-12 px-6 bg-neutral-900">
-  <motion.div
-    initial="hidden"
-    whileInView="visible"
-    viewport={{ once: true }}
-    variants={fadeInUp}
-    custom={4}
-  >
-    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-      <Link
-        to="/collection/story"
-        className="inline-block bg-white text-neutral-900 px-5 py-4 text-xl font-semibold rounded-lg shadow-md hover:bg-sky-300 transition"
-      >
-        Share Your Story
-      </Link>
-      <Link
-        to="/responses/numbers"
-        className="inline-block bg-white text-neutral-900 px-8 py-4 text-xl font-semibold rounded-lg shadow-md hover:bg-sky-300 transition"
-      >
-        View the Data
-      </Link>
-      <Link
-        to="/vision"
-        className="inline-block bg-white text-neutral-900 px-8 py-4 text-xl font-semibold rounded-lg shadow-md hover:bg-sky-300 transition"
-      >
-        See the Vision
-      </Link>
-    </div>
-  </motion.div>
-</section>
-
+        {/* CLOSE — invitation + action */}
+        <motion.section
+          className="mx-auto max-w-2xl px-5 py-16 text-center"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={fadeInUp}
+        >
+          <h2 className="text-2xl sm:text-3xl font-semibold mb-3">
+            Your experience belongs in the record.
+          </h2>
+          <p className="text-base sm:text-lg text-muted leading-relaxed mb-8">
+            It takes a few minutes — and it becomes part of something permanent.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 sm:justify-center">
+            <Link to="/collection" className={primaryBtn}>
+              Share your experience
+            </Link>
+            <Link to="/responses" className={secondaryBtn}>
+              Explore the records
+            </Link>
+          </div>
+        </motion.section>
       </div>
     </Layout>
   );

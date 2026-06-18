@@ -1,161 +1,117 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import { Link } from "react-router-dom";
 
+const phases = [
+  {
+    tag: "Now",
+    body: "Build the public record — stories and stats that make patterns visible.",
+    points: [
+      "Anonymous submissions",
+      "A public archive with selective publishing controls",
+      "A dashboard showing harm, trust, and recovery trends",
+    ],
+  },
+  {
+    tag: "Next",
+    body: "Turn the record into action — publishable research and a reform blueprint built from evidence.",
+    points: [
+      "Trauma-informed methodology aligned to public-health standards",
+      "Public reports and policy briefs",
+      "Partnerships with advocates, researchers, and care teams",
+    ],
+  },
+];
+
+const beliefs = [
+  {
+    title: "Patient experience is clinical data.",
+    text: "If someone leaves care traumatized, harmed, or afraid to seek help again, that outcome matters as much as a symptom score.",
+  },
+  {
+    title: "Transparency is safety.",
+    text: "People deserve clear explanations, accessible rights information, and visibility into what is happening to them.",
+  },
+  {
+    title: "Coercion is not a treatment plan.",
+    text: "The system needs to reduce the use of force and build alternatives that protect dignity.",
+  },
+  {
+    title: "Reform requires evidence.",
+    text: "Stories move people. Data moves policy. We need both — together.",
+  },
+];
+
+const primaryBtn =
+  "w-full sm:w-auto inline-flex justify-center bg-accent text-accent-ink font-semibold px-6 py-3 rounded-xl hover:bg-accent-soft transition";
+const secondaryBtn =
+  "w-full sm:w-auto inline-flex justify-center border border-hairline text-ink font-semibold px-6 py-3 rounded-xl hover:border-accent transition";
+
 export default function AboutTheFuture() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
-    <Layout title="About the Future" subtitle="A patient-led blueprint for rebuilding mental healthcare.">
-      <div className="max-w-6xl mx-auto px-4 py-12 space-y-14">
+    <Layout>
+      <div className="max-w-4xl mx-auto px-5 py-12 space-y-12 text-ink">
+        {/* Header */}
+        <header>
+          <h1 className="text-3xl sm:text-4xl font-bold text-accent">
+            Rebuilding mental healthcare
+          </h1>
+          <p className="text-muted mt-2 text-lg">
+            Patient voices → evidence → policy change.
+          </p>
+        </header>
 
-        {/* HERO / TIMELINE PANEL */}
-        <section className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-black">
-          {/* grid background (keep your existing if you already have it) */}
-          <div
-            className="absolute inset-0 opacity-25 pointer-events-none"
-            style={{
-              backgroundImage:
-                "linear-gradient(rgba(125,211,252,0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(125,211,252,0.18) 1px, transparent 1px)",
-              backgroundSize: "44px 44px",
-              backgroundPosition: "center",
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/70 pointer-events-none" />
-          <div className="absolute -top-28 -left-28 w-80 h-80 bg-sky-300/10 blur-3xl rounded-full pointer-events-none" />
-          <div className="absolute -bottom-28 -right-28 w-80 h-80 bg-sky-300/10 blur-3xl rounded-full pointer-events-none" />
-
-          <div className="relative z-10 px-8 py-16">
-            <div className="max-w-3xl space-y-3">
-              <h1 className="text-4xl md:text-5xl font-semibold text-white">
-                Rebuilding Mental Healthcare
-              </h1>
-              <p className="text-zinc-300 text-lg">
-                Patient voices → Evidence → Policy change
-              </p>
-            </div>
-
-            {/* Timeline */}
-            <div className="mt-10 relative">
-              {/* connector line */}
-              <div className="absolute left-0 right-0 top-6 h-px bg-zinc-700/80" />
-
-              {/* sweeping highlight */}
-              <div className="absolute left-0 right-0 top-6 h-px overflow-hidden">
-                <div
-                  className="h-px w-1/3 bg-sky-300/60"
-                  style={{ animation: "lr-sweep 3.2s ease-in-out infinite" }}
-                />
+        {/* Now / Next — stacks cleanly on mobile */}
+        <section className="grid gap-4 sm:grid-cols-2">
+          {phases.map((phase) => (
+            <div
+              key={phase.tag}
+              className="bg-surface border border-hairline rounded-xl p-6"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-2.5 h-2.5 rounded-full bg-accent" />
+                <span className="text-accent font-semibold">{phase.tag}</span>
               </div>
+              <p className="text-ink leading-relaxed mb-4">{phase.body}</p>
+              <ul className="space-y-1.5 text-sm text-muted list-disc pl-5">
+                {phase.points.map((pt) => (
+                  <li key={pt}>{pt}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
 
-              {/* nodes + cards */}
-              <div className="grid md:grid-cols-2 gap-8 relative">
-                {/* NOW */}
-                <div className="relative pt-10">
-                  {/* node */}
-                  <div className="absolute top-4 left-6 flex items-center gap-3">
-                    <div className="relative">
-                      <div
-                        className="w-3 h-3 rounded-full bg-sky-300"
-                        style={{ animation: "lr-pulse 2.2s ease-in-out infinite" }}
-                      />
-                      <div className="absolute inset-0 w-3 h-3 rounded-full bg-sky-300/30 blur-md" />
-                    </div>
-                    <span className="text-sky-300 font-semibold">Now</span>
-                  </div>
-
-                  <div className="bg-black/60 backdrop-blur border border-zinc-700 rounded-xl p-6 space-y-3">
-                    <p className="text-zinc-200">
-                      Build the public record: stories + stats that make patterns visible.
-                    </p>
-                    <ul className="text-zinc-400 text-sm list-disc pl-5 space-y-1">
-                      <li>Anonymous submissions</li>
-                      <li>Public archive with selective publishing controls</li>
-                      <li>Dashboard showing harm, trust, and recovery trends</li>
-                    </ul>
-                  </div>
-                </div>
-
-                {/* NEXT */}
-                <div className="relative pt-10">
-                  {/* node */}
-                  <div className="absolute top-4 left-6 flex items-center gap-3">
-                    <div className="relative">
-                      <div
-                        className="w-3 h-3 rounded-full bg-sky-300"
-                        style={{ animation: "lr-pulse 2.2s ease-in-out infinite", animationDelay: "0.4s" }}
-                      />
-                      <div className="absolute inset-0 w-3 h-3 rounded-full bg-sky-300/30 blur-md" />
-                    </div>
-                    <span className="text-sky-300 font-semibold">Next</span>
-                  </div>
-
-                  <div className="bg-black/60 backdrop-blur border border-zinc-700 rounded-xl p-6 space-y-3">
-                    <p className="text-zinc-200">
-                      Turn the record into action: publishable research + a reform blueprint built from evidence.
-                    </p>
-                    <ul className="text-zinc-400 text-sm list-disc pl-5 space-y-1">
-                      <li>Trauma-informed methodology aligned to public health standards</li>
-                      <li>Public reports and policy briefs</li>
-                      <li>Partnerships with advocates, researchers, and care teams</li>
-                    </ul>
-                  </div>
-                </div>
+        {/* What we believe */}
+        <section>
+          <h2 className="text-2xl font-semibold text-accent mb-5">
+            What we believe
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {beliefs.map((b) => (
+              <div
+                key={b.title}
+                className="bg-surface border border-hairline rounded-xl p-6"
+              >
+                <h3 className="text-ink font-semibold mb-2">{b.title}</h3>
+                <p className="text-muted leading-relaxed">{b.text}</p>
               </div>
-            </div>
-
-            {/* CTA */}
-            <div className="mt-10 flex flex-col sm:flex-row gap-4">
-              <Link
-                to="/collection"
-                className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-3 rounded text-center w-full sm:w-auto"
-              >
-                Share Your Experience
-              </Link>
-
-              <Link
-                to="/responses"
-                className="border border-zinc-500 px-6 py-3 rounded text-center w-full sm:w-auto text-sky-300 hover:text-white"
-              >
-                Explore the Records
-              </Link>
-            </div>
+            ))}
           </div>
         </section>
 
-        {/* WHAT WE BELIEVE — 4 BOXES */}
-        <section className="space-y-6">
-          <h2 className="text-2xl font-semibold text-sky-300">What We Believe</h2>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 space-y-2">
-              <h3 className="text-sky-300 font-semibold">Patient experience is clinical data.</h3>
-              <p className="text-zinc-300 leading-relaxed">
-                If someone leaves care traumatized, harmed, or afraid to seek help again, that outcome
-                matters as much as a symptom score.
-              </p>
-            </div>
-
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 space-y-2">
-              <h3 className="text-sky-300 font-semibold">Transparency is safety.</h3>
-              <p className="text-zinc-300 leading-relaxed">
-                Patients deserve clear explanations, accessible rights information, and visibility into
-                what is happening to them.
-              </p>
-            </div>
-
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 space-y-2">
-              <h3 className="text-sky-300 font-semibold">Coercion is not a treatment plan.</h3>
-              <p className="text-zinc-300 leading-relaxed">
-                The system must reduce the use of force and build alternatives that protect dignity.
-              </p>
-            </div>
-
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 space-y-2">
-              <h3 className="text-sky-300 font-semibold">Reform requires evidence.</h3>
-              <p className="text-zinc-300 leading-relaxed">
-                Stories move people. Data moves policy. We need both—together.
-              </p>
-            </div>
-          </div>
+        {/* CTA */}
+        <section className="flex flex-col sm:flex-row gap-3">
+          <Link to="/collection" className={primaryBtn}>
+            Share your experience
+          </Link>
+          <Link to="/responses" className={secondaryBtn}>
+            Explore the records
+          </Link>
         </section>
       </div>
     </Layout>

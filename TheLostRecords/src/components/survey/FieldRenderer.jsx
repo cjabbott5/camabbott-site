@@ -1,13 +1,13 @@
-import React from "react";
-import InputComponent from "./InputComponent";
-import { shouldDisplayField } from "./fieldVisibility"; // adjust if relative path differs
-
+// src/components/survey/FieldRenderer.jsx
+import React from 'react';
+import InputComponent from './InputComponent';
+import { shouldDisplayField } from './fieldVisibility';
 
 export default function FieldRenderer({ field, value, onChange, formValues }) {
   if (!shouldDisplayField(field, formValues)) return null;
 
   return (
-    <div className="mb-6">
+    <div className="mb-8">
       <InputComponent
         type={field.type}
         label={field.label}
@@ -19,4 +19,3 @@ export default function FieldRenderer({ field, value, onChange, formValues }) {
     </div>
   );
 }
-
