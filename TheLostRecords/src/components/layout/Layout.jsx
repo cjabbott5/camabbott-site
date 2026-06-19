@@ -18,7 +18,7 @@ export default function Layout({ children }) {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative z-10 flex-grow px-4 sm:px-6 lg:px-8 py-10 sm:py-12"
+        className="relative z-10 flex-grow px-4 sm:px-6 lg:px-8 py-6 sm:py-10"
       >
         {children}
       </motion.main>

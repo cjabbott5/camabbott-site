@@ -8,6 +8,7 @@ const navItems = [
     name: 'Contribute',
     path: '/collection',
     children: [
+      { name: 'Overview', path: '/collection' },
       { name: 'Share Your Story', path: '/collection/story' },
       { name: 'Share Your Stats', path: '/collection/stats' },
     ],
@@ -16,6 +17,7 @@ const navItems = [
     name: 'The Records',
     path: '/responses',
     children: [
+      { name: 'Overview', path: '/responses' },
       { name: 'Narratives', path: '/responses/narratives' },
       { name: 'By the Numbers', path: '/responses/numbers' },
     ],
@@ -25,6 +27,7 @@ const navItems = [
     name: 'The Vision',
     path: '/vision',
     children: [
+      { name: 'Overview', path: '/vision' },
       { name: 'About the Founder', path: '/vision/founder' },
       { name: 'About the Future', path: '/vision/future' },
     ],
@@ -38,10 +41,16 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-hairline bg-base/80 backdrop-blur-md">
-      <nav className="mx-auto flex max-w-7xl lg:max-w-9xl items-center justify-between px-4 sm:px-6 lg:px-8 py-4 text-md">
-        <div className="text-lg font-semibold uppercase tracking-wide">
-          <Link to="/home" className="text-accent hover:text-accent-soft hover:no-underline">
+    <header
+      className="sticky top-0 z-50 border-b border-hairline bg-base/80 backdrop-blur-md"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
+      <nav className="mx-auto flex max-w-7xl lg:max-w-9xl items-center justify-between px-4 sm:px-6 lg:px-8 py-3.5 text-md">
+        <div className="font-display text-xl sm:text-2xl font-bold uppercase tracking-[0.07em] leading-none">
+          <Link
+            to="/home"
+            className="bg-gradient-to-r from-accent-soft via-accent-soft to-accent bg-clip-text text-transparent transition-all duration-300 hover:from-ember hover:to-ember hover:no-underline"
+          >
             The Lost Records
           </Link>
         </div>

@@ -1,34 +1,39 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
+/**
+ * Ambient scroll thread — a vertical line down the left margin that fills as
+ * you scroll, with a soft oxblood glow and a pulsing leading dot.
+ * Fixed, behind content, non-interactive. Honors reduced-motion via CSS.
+ */
 export default function Thread() {
-  const { scrollYProgress } = useScroll(); // track entire page scroll
-
-
-  // Animate the thread height from 0% to 100% as you scroll
-  const height = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  const { scrollYProgress } = useScroll();
+  // Smooth the fill so it eases rather than tracking 1:1 with the scrollbar.
+  const smooth = useSpring(scrollYProgress, { stiffness: 90, damping: 24, mass: 0.4 });
+  const height = useTransform(smooth, [0, 1], ["0%", "100%"]);
 
   return (
     <>
-      {/* Ambient glow */}
-      <div className="fixed top-0 left-6 w-8 h-full z-0 block pointer-events-none">
-        <div className="w-full h-full bg-sky-400/10 blur-3xl rounded-full" />
+      {/* Ambient glow column */}
+      <div className="fixed top-0 left-6 w-10 h-full z-0 block pointer-events-none">
+        <div className="w-full h-full bg-accent/10 blur-3xl rounded-full" />
       </div>
 
-      {/* Animated thread */}
-      <div className="fixed top-0 left-6 h-full z-10 flex items-start overflow-visible pointer-events-none">
-        <motion.div
-          style={{ height }}
-          className="w-[2px] bg-gradient-to-b from-sky-300 to-sky-500 opacity-70 shadow-lg shadow-sky-400"
-        />
-      </div>
+      {/* Static rail (faint) + animated fill with leading dot */}
       <div className="fixed top-0 left-6 h-full z-10 block pointer-events-none">
-  <div className="relative w-[2px] h-full">
-    <motion.div
-      style={{ height }}
-      className="absolute top-0 w-full bg-gradient-to-b from-sky-300 to-sky-500 opacity-70 shadow-lg shadow-sky-400"
-    />
-  </div>
-</div>
+        <div className="relative w-[2px] h-full">
+          {/* faint full-height rail so the line reads even before scrolling */}
+          <div className="absolute inset-0 w-full bg-hairline/50" />
+
+          {/* animated oxblood fill */}
+          <motion.div
+            style={{ height }}
+            className="absolute top-0 w-full bg-gradient-to-b from-accent-soft via-accent to-accent-strong opacity-80 shadow-[0_0_10px_rgba(157,52,46,0.55)]"
+          >
+            {/* glowing leading dot rides the growing edge */}
+            <div className="lr-thread-dot absolute -bottom-1 left-1/2 -translate-x-1/2 h-2.5 w-2.5 rounded-full bg-accent-soft shadow-[0_0_14px_4px_rgba(199,91,78,0.7)]" />
+          </motion.div>
+        </div>
+      </div>
     </>
   );
 }
