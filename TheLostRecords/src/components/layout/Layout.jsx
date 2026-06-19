@@ -1,36 +1,28 @@
 // components/layout/Layout.jsx
-import Header from './Header'
-import Footer from './Footer'
-import Thread from "../visuals/AnimatedThreads";
-import { motion } from 'framer-motion'
+import Header from './Header';
+import Footer from './Footer';
+import Thread from '../visuals/AnimatedThreads';
+import { motion } from 'framer-motion';
 
 export default function Layout({ children }) {
   return (
-    <div className="relative min-h-screen bg-zinc-900 text-zinc-100 flex flex-col">
-      
-      {/* Animated background thread with isolation */}
-     <div className="absolute inset-0 -z-10">
- <div className="overflow-hidden border-2 border-red-500">
-  <Thread />
-</div>
-</div>
+    <div className="relative min-h-screen bg-base text-ink flex flex-col">
+      {/* Ambient scroll thread (fixed, behind content, non-interactive) */}
+      <Thread />
 
-      {/* Sticky Header stays on top */}
-      <div className="sticky top-0 relative z-20">
-        <Header />
-      </div>
+      {/* Sticky header (Header handles its own stickiness) */}
+      <Header />
 
-      {/* Main content with animation */}
+      {/* Main content — horizontal padding flexes with viewport */}
       <motion.main
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex-grow px-6 py-12 lg:px-8 relative z-10"
+        className="relative z-10 flex-grow px-4 sm:px-6 lg:px-8 py-10 sm:py-12"
       >
         {children}
       </motion.main>
 
-      {/* Footer stays on bottom */}
       <Footer />
     </div>
   );
