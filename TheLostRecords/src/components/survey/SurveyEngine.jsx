@@ -4,7 +4,10 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useSurveyStore } from "./useSurveyStore";
 import FieldRenderer from "./FieldRenderer";
 import ProgressTracker from "./ProgressTracker";
-import { patientSurveySchema } from "@/components/schemas/patientSurveySchema";
+import {
+  patientSurveySchema,
+  SURVEY_SCHEMA_VERSION,
+} from "@/components/schemas/patientSurveySchema";
 import {
   buildVisibleQuestions,
   getSectionTrail,
@@ -14,30 +17,35 @@ import {
   formatAnswer,
 } from "./surveyUtils";
 
-// CAM: replace with the real contact address before launch.
 const CONTACT_EMAIL = "hello@thelostrecords.org";
-
-const AUTO_ADVANCE_MS = 280;
+const AUTO_ADVANCE_MS = 260;
+const SKIPPED_VALUE = "__skipped__";
 
 export default function SurveyEngine() {
   const reduce = useReducedMotion();
-  const [phase, setPhase] = useState("survey"); // 'survey' | 'review'
+  const [phase, setPhase] = useState("survey");
   const [index, setIndex] = useState(0);
-  const [dir, setDir] = useState(1); // 1 forward, -1 back (for transition)
+  const [dir, setDir] = useState(1);
 
   const { formData, setField, resetSurvey, submitSurvey, status, result } =
     useSurveyStore();
+
+  useEffect(() => {
+    if (!formData?._schemaVersion) {
+      setField("_schemaVersion", SURVEY_SCHEMA_VERSION);
+    }
+  }, [formData?._schemaVersion, setField]);
 
   const questions = useMemo(
     () => buildVisibleQuestions(patientSurveySchema, formData),
     [formData]
   );
+
   const total = questions.length;
   const safeIndex = Math.min(index, Math.max(total - 1, 0));
   const current = questions[safeIndex];
   const isLast = safeIndex >= total - 1;
 
-  // section-based progress
   const sectionCount = getSectionTrail(questions).length;
   const sectionIndex = useMemo(() => {
     const seen = new Set();
@@ -48,9 +56,9 @@ export default function SurveyEngine() {
     return Math.max(seen.size - 1, 0);
   }, [questions, safeIndex]);
 
-  // keep nav fresh for the auto-advance timeout (avoids stale closures)
   const goNextRef = useRef(() => {});
   const advanceTimer = useRef(null);
+
   const clearAdvance = () => {
     if (advanceTimer.current) {
       clearTimeout(advanceTimer.current);
@@ -59,6 +67,7 @@ export default function SurveyEngine() {
   };
 
   useEffect(() => () => clearAdvance(), []);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
   }, [safeIndex, phase, reduce]);
@@ -69,11 +78,13 @@ export default function SurveyEngine() {
     if (isLast) setPhase("review");
     else setIndex(safeIndex + 1);
   };
+
   goNextRef.current = goNext;
 
   const goBack = () => {
     clearAdvance();
     setDir(-1);
+
     if (phase === "review") {
       setPhase("survey");
       setIndex(total - 1);
@@ -86,29 +97,30 @@ export default function SurveyEngine() {
     const ok = window.confirm(
       "Leave the survey? Your answers on this device will be cleared."
     );
+
     if (ok) {
       resetSurvey();
       window.location.href = "/";
     }
   };
 
-  // A single-select answer. Auto-advances; arriving via Back never triggers
-  // this (it only runs on a user tap), which is what keeps Back usable.
   const handleAnswer = (field, value) => {
     setField(field.name, value);
+
     if (field.type === "radio") {
-      if (reduce) {
-        // advance after state settles
-        clearAdvance();
-        advanceTimer.current = setTimeout(() => goNextRef.current(), 0);
-      } else {
-        clearAdvance();
-        advanceTimer.current = setTimeout(
-          () => goNextRef.current(),
-          AUTO_ADVANCE_MS
-        );
-      }
+      clearAdvance();
+      advanceTimer.current = setTimeout(
+        () => goNextRef.current(),
+        reduce ? 0 : AUTO_ADVANCE_MS
+      );
     }
+  };
+
+  const handleSkip = () => {
+    if (current?.kind === "question" && current.field?.name) {
+      setField(current.field.name, SKIPPED_VALUE);
+    }
+    goNext();
   };
 
   // ── Success ────────────────────────────────────────────────────────────────
@@ -124,11 +136,13 @@ export default function SurveyEngine() {
             body of evidence built by people the system overlooked — and it will
             be used only in aggregate, for research and advocacy.
           </p>
+
           {result.mode === "local" && (
             <p className="text-xs text-faint mb-8">
               Preview mode: saved on this device only.
             </p>
           )}
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="/responses/numbers"
@@ -148,32 +162,41 @@ export default function SurveyEngine() {
     );
   }
 
-  // ── Review ───────────────────────────────────────────────────────────────────
+  // ── Review ────────────────────────────────────────────────────────────────
   if (phase === "review") {
     const labelIndex = buildLabelIndex(patientSurveySchema);
     const steps = getVisibleSteps(patientSurveySchema, formData);
+
     return (
-      <div className="max-w-xl mx-auto px-4 py-10">
-        <h2 className="text-2xl font-bold text-ink mb-2">Review your responses</h2>
-        <p className="text-muted mb-8">
+      <div className="max-w-xl mx-auto px-5 py-10">
+        <h2 className="text-2xl font-bold text-ink mb-2">
+          Review your responses
+        </h2>
+        <p className="text-muted mb-8 leading-relaxed">
           Take a look before you submit. Everything here is anonymous unless you
           chose to share contact details.
         </p>
+
         <div className="space-y-6">
           {steps.map((step) => {
             const fields = getVisibleFields(step, formData).filter((f) => {
               if (f.type === "breath" || f.type === "info") return false;
               return formatAnswer(labelIndex[f.name], formData[f.name]) !== null;
             });
+
             if (fields.length === 0) return null;
+
             return (
               <div
                 key={step.id}
                 className="bg-surface border border-hairline rounded-xl p-5"
               >
                 {step.title && (
-                  <h3 className="text-accent font-semibold mb-3">{step.title}</h3>
+                  <h3 className="text-accent font-semibold mb-3">
+                    {step.title}
+                  </h3>
                 )}
+
                 <dl className="space-y-3">
                   {fields.map((f) => (
                     <div key={f.name}>
@@ -188,6 +211,7 @@ export default function SurveyEngine() {
             );
           })}
         </div>
+
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-between">
           <button
             onClick={goBack}
@@ -195,6 +219,7 @@ export default function SurveyEngine() {
           >
             Back to edit
           </button>
+
           <button
             onClick={submitSurvey}
             disabled={status === "submitting"}
@@ -208,10 +233,13 @@ export default function SurveyEngine() {
   }
 
   if (!current) {
-    return <Screen><p className="text-muted">No questions to show.</p></Screen>;
+    return (
+      <Screen>
+        <p className="text-muted">No questions to show.</p>
+      </Screen>
+    );
   }
 
-  // ── Per-screen body ──────────────────────────────────────────────────────────
   const variants = reduce
     ? { enter: { opacity: 1 }, center: { opacity: 1 }, exit: { opacity: 1 } }
     : {
@@ -221,9 +249,12 @@ export default function SurveyEngine() {
       };
 
   const isConsent = current.stepId === "consent";
-  // radio auto-advances, so it needs no Continue. Everything else does.
+  const isQuestion = current.kind === "question";
+  const field = current.field;
   const showContinue =
-    !isConsent && current.kind === "question" && current.field.type !== "radio";
+    !isConsent && isQuestion && field?.type !== "radio";
+  const showSkip =
+    !isConsent && isQuestion && field?.optional === true;
 
   return (
     <Screen>
@@ -245,7 +276,7 @@ export default function SurveyEngine() {
                 <BreathScreen copy={current.copy} />
               ) : isConsent ? (
                 <ConsentScreen
-                  field={current.field}
+                  field={field}
                   value={formData.consent}
                   onChoose={(v) => {
                     setField("consent", v);
@@ -262,17 +293,20 @@ export default function SurveyEngine() {
                       {current.intro}
                     </p>
                   )}
+
                   <FieldRenderer
-                    field={current.field}
-                    value={formData[current.field.name]}
-                    onChange={(val) => handleAnswer(current.field, val)}
+                    field={field}
+                    value={formData[field.name]}
+                    onChange={(val) => handleAnswer(field, val)}
                     formValues={formData}
                     autoFocus={false}
                   />
-                  <p className="mt-6 text-xs text-faint">
-                    This question is optional — skip anything you'd rather not
-                    answer.
-                  </p>
+
+                  {showSkip && (
+                    <p className="mt-6 text-xs text-faint">
+                      Optional — you can answer, skip, or stop at any time.
+                    </p>
+                  )}
                 </>
               )}
             </motion.div>
@@ -280,12 +314,11 @@ export default function SurveyEngine() {
         </div>
       </div>
 
-      {/* nav pinned to the bottom of the screen */}
-      <div className="pt-6 flex items-center justify-between">
+      <div className="pt-6 flex items-center justify-between gap-4">
         {safeIndex > 0 ? (
           <button
             onClick={goBack}
-            className="text-ink/80 px-2 py-2 hover:text-ink transition"
+            className="text-ink/80 px-2 py-2 hover:text-ink transition min-h-[44px]"
           >
             ← Back
           </button>
@@ -293,17 +326,27 @@ export default function SurveyEngine() {
           <span />
         )}
 
-        {!isConsent &&
-          (showContinue || current.kind === "breath" ? (
-            <button
-              onClick={goNext}
-              className="bg-accent text-accent-ink font-semibold px-7 py-3 rounded-xl hover:bg-accent-soft transition"
-            >
-              {isLast ? "Review answers" : "Continue"}
-            </button>
-          ) : (
-            <span />
-          ))}
+        {!isConsent && (
+          <div className="flex items-center gap-3">
+            {showSkip && (
+              <button
+                onClick={handleSkip}
+                className="text-muted px-3 py-3 rounded-xl hover:text-ink transition min-h-[44px]"
+              >
+                Skip
+              </button>
+            )}
+
+            {(showContinue || current.kind === "breath") && (
+              <button
+                onClick={goNext}
+                className="bg-accent text-accent-ink font-semibold px-7 py-3 rounded-xl hover:bg-accent-soft transition min-h-[52px]"
+              >
+                {isLast ? "Review answers" : "Continue"}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="mt-8 text-center">
@@ -318,7 +361,6 @@ export default function SurveyEngine() {
   );
 }
 
-// Full-height screen shell — aims to hold one decision without scrolling.
 function Screen({ children }) {
   return (
     <div className="min-h-[100dvh] max-w-xl mx-auto px-5 py-8 flex flex-col">
@@ -349,9 +391,11 @@ function ConsentScreen({
         <legend className="block text-ink font-semibold mb-5 text-xl leading-snug">
           {field.label}
         </legend>
+
         <div className="space-y-3">
           {field.options.map((opt) => {
             const selected = value === opt.value;
+
             return (
               <button
                 key={opt.value}
@@ -375,14 +419,14 @@ function ConsentScreen({
       {value === "no" && (
         <Panel>
           <p className="text-muted leading-relaxed mb-4">
-            That's alright — this isn't for everyone, and there's no pressure. If
-            something's holding you back and you'd like to talk it through, you
-            can reach out anytime at{" "}
+            That's alright — this isn't for everyone, and there's no pressure.
+            You can reach out anytime at{" "}
             <a href={`mailto:${contactEmail}`} className="text-accent underline">
               {contactEmail}
             </a>
             .
           </p>
+
           <button
             onClick={onLeave}
             className="border border-hairline text-ink px-5 py-2.5 rounded-xl hover:border-accent transition"
@@ -396,9 +440,10 @@ function ConsentScreen({
         <Panel>
           <ul className="text-muted leading-relaxed space-y-2 mb-5 list-disc pl-5">
             <li>Anonymous — we never ask your name.</li>
-            <li>Stop anytime; nothing is saved unless you finish.</li>
-            <li>Nothing is published without you choosing to.</li>
+            <li>Most questions are optional and can be skipped.</li>
+            <li>Results are reported only in aggregate.</li>
           </ul>
+
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={onContinueAnyway}
@@ -406,11 +451,12 @@ function ConsentScreen({
             >
               I feel okay to continue
             </button>
+
             <button
               onClick={onLeave}
               className="border border-hairline text-ink px-6 py-3 rounded-xl hover:border-accent transition"
             >
-              Not right now — that's alright
+              Not right now
             </button>
           </div>
         </Panel>
