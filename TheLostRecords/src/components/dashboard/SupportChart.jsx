@@ -1,10 +1,8 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-// Define custom colors
-const COLORS = ["#10B981", "#3B82F6", "#8B5CF6", "#F43F5E"];
+const COLORS = ["#6FCF97", "#C75B4E", "#E6A95C", "#9D342E", "#C9863A", "#8A7A70"];
 
-// Custom label renderer
-const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }) => {
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, name }) => {
   const RADIAN = Math.PI / 180;
   const radius = innerRadius + (outerRadius - innerRadius) * 1.2;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -14,7 +12,7 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
     <text
       x={x}
       y={y}
-      fill="#ffffff"
+      fill="#F4EAE2"
       textAnchor={x > cx ? "start" : "end"}
       dominantBaseline="central"
       className="text-xs"
@@ -26,14 +24,14 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
 
 export default function SupportChart({ data }) {
   return (
-    <div className="shadow rounded p-4 border border-zinc-700 bg-zinc-900">
-      <h3 className="text-lg font-semibold text-white mb-2">Recovery Supports</h3>
+    <div className="rounded-xl border border-hairline bg-surface p-5">
+      <h3 className="text-lg font-semibold text-ink mb-2">Recovery Supports</h3>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
             data={data}
             dataKey="value"
-            nameKey="type"
+            nameKey="name"
             cx="50%"
             cy="50%"
             outerRadius={100}
@@ -44,8 +42,8 @@ export default function SupportChart({ data }) {
             ))}
           </Pie>
           <Tooltip
-            contentStyle={{ backgroundColor: "#1f2937", borderColor: "#374151", color: "#f9fafb" }}
-            labelStyle={{ color: "#f9fafb" }}
+            contentStyle={{ backgroundColor: "#1F1815", borderColor: "#3A2E29", color: "#F4EAE2" }}
+            labelStyle={{ color: "#F4EAE2" }}
             formatter={(value, name) => [`${value}`, `${name}`]}
           />
         </PieChart>

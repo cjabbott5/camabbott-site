@@ -1,60 +1,81 @@
 // src/components/survey/SurveyEngine.jsx
-import React, { useEffect, useMemo, useState } from 'react';
-import { useSurveyStore } from './useSurveyStore';
-import SurveyStep from './SurveyStep';
-import ProgressTracker from './ProgressTracker';
-import { patientSurveySchema } from '@/components/schemas/patientSurveySchema';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useSurveyStore } from "./useSurveyStore";
+import FieldRenderer from "./FieldRenderer";
+import ProgressTracker from "./ProgressTracker";
+import { patientSurveySchema } from "@/components/schemas/patientSurveySchema";
 import {
+  buildVisibleQuestions,
+  getSectionTrail,
   getVisibleSteps,
   getVisibleFields,
   buildLabelIndex,
   formatAnswer,
-} from './surveyUtils';
+} from "./surveyUtils";
+
+// CAM: replace with the real contact address before launch.
+const CONTACT_EMAIL = "hello@thelostrecords.org";
+
+const AUTO_ADVANCE_MS = 280;
 
 export default function SurveyEngine() {
-  // phase: 'survey' (answering steps) -> 'review' -> submit -> 'done'
-  const [phase, setPhase] = useState('survey');
+  const reduce = useReducedMotion();
+  const [phase, setPhase] = useState("survey"); // 'survey' | 'review'
   const [index, setIndex] = useState(0);
+  const [dir, setDir] = useState(1); // 1 forward, -1 back (for transition)
 
-  const {
-    formData,
-    resetSurvey,
-    submitSurvey,
-    status,
-    result,
-  } = useSurveyStore();
+  const { formData, setField, resetSurvey, submitSurvey, status, result } =
+    useSurveyStore();
 
-  // Recompute which steps are visible every render — this auto-skips steps whose
-  // fields are all conditionally hidden, and adds branch steps as answers change.
-  const visibleSteps = useMemo(
-    () => getVisibleSteps(patientSurveySchema, formData),
+  const questions = useMemo(
+    () => buildVisibleQuestions(patientSurveySchema, formData),
     [formData]
   );
-  const total = visibleSteps.length;
-
-  // Keep the index in range if visibility shrank beneath us.
+  const total = questions.length;
   const safeIndex = Math.min(index, Math.max(total - 1, 0));
-  const currentStep = visibleSteps[safeIndex];
-  const isLastStep = safeIndex >= total - 1;
+  const current = questions[safeIndex];
+  const isLast = safeIndex >= total - 1;
 
-  // Scroll to top whenever the visible step or phase changes.
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [safeIndex, phase]);
+  // section-based progress
+  const sectionCount = getSectionTrail(questions).length;
+  const sectionIndex = useMemo(() => {
+    const seen = new Set();
+    for (let i = 0; i <= safeIndex; i++) {
+      const q = questions[i];
+      if (q && q.kind !== "breath") seen.add(q.stepId);
+    }
+    return Math.max(seen.size - 1, 0);
+  }, [questions, safeIndex]);
 
-  // Consent gate: must affirmatively say yes to continue past the consent step.
-  const consentBlocked =
-    currentStep?.id === 'consent' && formData.consent !== 'yes';
-
-  const goNext = () => {
-    if (consentBlocked) return;
-    if (isLastStep) setPhase('review');
-    else setIndex(safeIndex + 1);
+  // keep nav fresh for the auto-advance timeout (avoids stale closures)
+  const goNextRef = useRef(() => {});
+  const advanceTimer = useRef(null);
+  const clearAdvance = () => {
+    if (advanceTimer.current) {
+      clearTimeout(advanceTimer.current);
+      advanceTimer.current = null;
+    }
   };
 
+  useEffect(() => () => clearAdvance(), []);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+  }, [safeIndex, phase, reduce]);
+
+  const goNext = () => {
+    clearAdvance();
+    setDir(1);
+    if (isLast) setPhase("review");
+    else setIndex(safeIndex + 1);
+  };
+  goNextRef.current = goNext;
+
   const goBack = () => {
-    if (phase === 'review') {
-      setPhase('survey');
+    clearAdvance();
+    setDir(-1);
+    if (phase === "review") {
+      setPhase("survey");
       setIndex(total - 1);
     } else if (safeIndex > 0) {
       setIndex(safeIndex - 1);
@@ -63,79 +84,97 @@ export default function SurveyEngine() {
 
   const handleExit = () => {
     const ok = window.confirm(
-      'Exit the survey? Your answers on this device will be cleared.'
+      "Leave the survey? Your answers on this device will be cleared."
     );
     if (ok) {
       resetSurvey();
-      window.location.href = '/';
+      window.location.href = "/";
     }
   };
 
-  // ---- Success screen -------------------------------------------------------
-  if (status === 'success' && result) {
+  // A single-select answer. Auto-advances; arriving via Back never triggers
+  // this (it only runs on a user tap), which is what keeps Back usable.
+  const handleAnswer = (field, value) => {
+    setField(field.name, value);
+    if (field.type === "radio") {
+      if (reduce) {
+        // advance after state settles
+        clearAdvance();
+        advanceTimer.current = setTimeout(() => goNextRef.current(), 0);
+      } else {
+        clearAdvance();
+        advanceTimer.current = setTimeout(
+          () => goNextRef.current(),
+          AUTO_ADVANCE_MS
+        );
+      }
+    }
+  };
+
+  // ── Success ────────────────────────────────────────────────────────────────
+  if (status === "success" && result) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-12 text-center">
-        <h2 className="text-3xl font-bold text-ink mb-4">
-          Your record has been added.
-        </h2>
-        <p className="text-muted leading-relaxed mb-8">
-          Thank you for trusting us with your experience. It joins a growing body
-          of evidence built by people the system overlooked — and it will be used
-          only in aggregate, for research and advocacy.
-        </p>
-
-        {result.mode === 'local' && (
-          <p className="text-xs text-faint mb-8">
-            Preview mode: saved on this device. Connect a backend to collect
-            responses centrally.
+      <Screen>
+        <div className="text-center max-w-xl mx-auto">
+          <h2 className="text-3xl font-bold text-ink mb-4">
+            Your record has been added.
+          </h2>
+          <p className="text-muted leading-relaxed mb-8">
+            Thank you for trusting us with your experience. It joins a growing
+            body of evidence built by people the system overlooked — and it will
+            be used only in aggregate, for research and advocacy.
           </p>
-        )}
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a
-            href="/responses/numbers"
-            className="bg-accent text-accent-ink font-semibold px-6 py-3 rounded-lg hover:bg-accent-soft transition"
-          >
-            See the data
-          </a>
-          <a
-            href="/collection"
-            className="border border-hairline text-ink px-6 py-3 rounded-lg hover:border-accent transition"
-          >
-            Back to Contribute
-          </a>
+          {result.mode === "local" && (
+            <p className="text-xs text-faint mb-8">
+              Preview mode: saved on this device only.
+            </p>
+          )}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="/responses/numbers"
+              className="bg-accent text-accent-ink font-semibold px-6 py-3 rounded-xl hover:bg-accent-soft transition"
+            >
+              See the data
+            </a>
+            <a
+              href="/collection"
+              className="border border-hairline text-ink px-6 py-3 rounded-xl hover:border-accent transition"
+            >
+              Back to Contribute
+            </a>
+          </div>
         </div>
-      </div>
+      </Screen>
     );
   }
 
-  // ---- Review screen --------------------------------------------------------
-  if (phase === 'review') {
+  // ── Review ───────────────────────────────────────────────────────────────────
+  if (phase === "review") {
     const labelIndex = buildLabelIndex(patientSurveySchema);
-
+    const steps = getVisibleSteps(patientSurveySchema, formData);
     return (
-      <div className="max-w-2xl mx-auto px-4 py-10">
+      <div className="max-w-xl mx-auto px-4 py-10">
         <h2 className="text-2xl font-bold text-ink mb-2">Review your responses</h2>
         <p className="text-muted mb-8">
           Take a look before you submit. Everything here is anonymous unless you
           chose to share contact details.
         </p>
-
         <div className="space-y-6">
-          {visibleSteps.map((step) => {
+          {steps.map((step) => {
             const fields = getVisibleFields(step, formData).filter((f) => {
-              const v = formData[f.name];
-              return formatAnswer(labelIndex[f.name], v) !== null;
+              if (f.type === "breath" || f.type === "info") return false;
+              return formatAnswer(labelIndex[f.name], formData[f.name]) !== null;
             });
             if (fields.length === 0) return null;
-
             return (
               <div
                 key={step.id}
                 className="bg-surface border border-hairline rounded-xl p-5"
               >
-                <h3 className="text-accent font-semibold mb-3">{step.title}</h3>
-                <dl className="space-y-2">
+                {step.title && (
+                  <h3 className="text-accent font-semibold mb-3">{step.title}</h3>
+                )}
+                <dl className="space-y-3">
                   {fields.map((f) => (
                     <div key={f.name}>
                       <dt className="text-sm text-faint">{f.label}</dt>
@@ -149,82 +188,241 @@ export default function SurveyEngine() {
             );
           })}
         </div>
-
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-between">
           <button
             onClick={goBack}
-            className="border border-hairline text-ink px-6 py-3 rounded-lg hover:border-accent transition"
+            className="border border-hairline text-ink px-6 py-3 rounded-xl hover:border-accent transition"
           >
             Back to edit
           </button>
           <button
             onClick={submitSurvey}
-            disabled={status === 'submitting'}
-            className="bg-accent text-accent-ink font-semibold px-8 py-3 rounded-lg hover:bg-accent-soft disabled:opacity-60 transition"
+            disabled={status === "submitting"}
+            className="bg-accent text-accent-ink font-semibold px-8 py-3 rounded-xl hover:bg-accent-soft disabled:opacity-60 transition"
           >
-            {status === 'submitting' ? 'Submitting…' : 'Submit my record'}
+            {status === "submitting" ? "Submitting…" : "Submit my record"}
           </button>
         </div>
       </div>
     );
   }
 
-  // ---- Survey steps ---------------------------------------------------------
-  if (!currentStep) {
-    return (
-      <div className="max-w-2xl mx-auto px-4 py-12 text-muted">
-        No questions to show.
-      </div>
-    );
+  if (!current) {
+    return <Screen><p className="text-muted">No questions to show.</p></Screen>;
   }
 
+  // ── Per-screen body ──────────────────────────────────────────────────────────
+  const variants = reduce
+    ? { enter: { opacity: 1 }, center: { opacity: 1 }, exit: { opacity: 1 } }
+    : {
+        enter: (d) => ({ opacity: 0, x: d > 0 ? 40 : -40 }),
+        center: { opacity: 1, x: 0 },
+        exit: (d) => ({ opacity: 0, x: d > 0 ? -40 : 40 }),
+      };
+
+  const isConsent = current.stepId === "consent";
+  // radio auto-advances, so it needs no Continue. Everything else does.
+  const showContinue =
+    !isConsent && current.kind === "question" && current.field.type !== "radio";
+
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
-      <ProgressTracker current={safeIndex} total={total} />
+    <Screen>
+      <ProgressTracker sectionIndex={sectionIndex} sectionCount={sectionCount} />
 
-      <SurveyStep step={currentStep} />
+      <div className="flex-1 flex items-center">
+        <div className="w-full">
+          <AnimatePresence mode="wait" custom={dir} initial={false}>
+            <motion.div
+              key={current.key}
+              custom={dir}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: reduce ? 0 : 0.22, ease: "easeOut" }}
+            >
+              {current.kind === "breath" ? (
+                <BreathScreen copy={current.copy} />
+              ) : isConsent ? (
+                <ConsentScreen
+                  field={current.field}
+                  value={formData.consent}
+                  onChoose={(v) => {
+                    setField("consent", v);
+                    if (v === "yes") goNext();
+                  }}
+                  onContinueAnyway={goNext}
+                  onLeave={handleExit}
+                  contactEmail={CONTACT_EMAIL}
+                />
+              ) : (
+                <>
+                  {current.intro && (
+                    <p className="text-muted leading-relaxed mb-6">
+                      {current.intro}
+                    </p>
+                  )}
+                  <FieldRenderer
+                    field={current.field}
+                    value={formData[current.field.name]}
+                    onChange={(val) => handleAnswer(current.field, val)}
+                    formValues={formData}
+                    autoFocus={false}
+                  />
+                  <p className="mt-6 text-xs text-faint">
+                    This question is optional — skip anything you'd rather not
+                    answer.
+                  </p>
+                </>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
 
-      {currentStep.id !== 'consent' && (
-        <p className="mt-6 text-xs text-faint">
-          Every question is optional — skip anything you'd rather not answer.
-        </p>
-      )}
-
-      {consentBlocked && (
-        <p className="mt-4 text-sm text-warn">
-          Please select “Yes” to continue, or exit below.
-        </p>
-      )}
-
-      <div className="mt-8 flex justify-between">
+      {/* nav pinned to the bottom of the screen */}
+      <div className="pt-6 flex items-center justify-between">
         {safeIndex > 0 ? (
           <button
             onClick={goBack}
-            className="border border-hairline text-ink px-6 py-2 rounded-lg hover:border-accent transition"
+            className="text-ink/80 px-2 py-2 hover:text-ink transition"
           >
-            Back
+            ← Back
           </button>
         ) : (
-          <div />
+          <span />
         )}
 
-        <button
-          onClick={goNext}
-          disabled={consentBlocked}
-          className="bg-accent text-accent-ink font-semibold px-6 py-2 rounded-lg hover:bg-accent-soft disabled:opacity-40 disabled:cursor-not-allowed transition"
-        >
-          {isLastStep ? 'Review answers' : 'Next'}
-        </button>
+        {!isConsent &&
+          (showContinue || current.kind === "breath" ? (
+            <button
+              onClick={goNext}
+              className="bg-accent text-accent-ink font-semibold px-7 py-3 rounded-xl hover:bg-accent-soft transition"
+            >
+              {isLast ? "Review answers" : "Continue"}
+            </button>
+          ) : (
+            <span />
+          ))}
       </div>
 
-      <div className="mt-10 text-center">
+      <div className="mt-8 text-center">
         <button
           onClick={handleExit}
-          className="text-sm text-danger underline hover:opacity-80 transition"
+          className="text-sm text-faint underline hover:text-muted transition"
         >
           Exit survey
         </button>
       </div>
+    </Screen>
+  );
+}
+
+// Full-height screen shell — aims to hold one decision without scrolling.
+function Screen({ children }) {
+  return (
+    <div className="min-h-[100dvh] max-w-xl mx-auto px-5 py-8 flex flex-col">
+      {children}
+    </div>
+  );
+}
+
+function BreathScreen({ copy }) {
+  return (
+    <div className="text-center py-10">
+      <p className="text-xl text-ink leading-relaxed max-w-md mx-auto">{copy}</p>
+    </div>
+  );
+}
+
+function ConsentScreen({
+  field,
+  value,
+  onChoose,
+  onContinueAnyway,
+  onLeave,
+  contactEmail,
+}) {
+  return (
+    <div>
+      <fieldset>
+        <legend className="block text-ink font-semibold mb-5 text-xl leading-snug">
+          {field.label}
+        </legend>
+        <div className="space-y-3">
+          {field.options.map((opt) => {
+            const selected = value === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => onChoose(opt.value)}
+                aria-pressed={selected}
+                className={[
+                  "w-full text-left px-5 py-4 rounded-xl border text-base transition min-h-[56px] flex items-center",
+                  selected
+                    ? "border-accent bg-accent-soft text-ink"
+                    : "border-hairline bg-surface text-ink hover:border-accent",
+                ].join(" ")}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      {value === "no" && (
+        <Panel>
+          <p className="text-muted leading-relaxed mb-4">
+            That's alright — this isn't for everyone, and there's no pressure. If
+            something's holding you back and you'd like to talk it through, you
+            can reach out anytime at{" "}
+            <a href={`mailto:${contactEmail}`} className="text-accent underline">
+              {contactEmail}
+            </a>
+            .
+          </p>
+          <button
+            onClick={onLeave}
+            className="border border-hairline text-ink px-5 py-2.5 rounded-xl hover:border-accent transition"
+          >
+            Leave for now
+          </button>
+        </Panel>
+      )}
+
+      {value === "unsure" && (
+        <Panel>
+          <ul className="text-muted leading-relaxed space-y-2 mb-5 list-disc pl-5">
+            <li>Anonymous — we never ask your name.</li>
+            <li>Stop anytime; nothing is saved unless you finish.</li>
+            <li>Nothing is published without you choosing to.</li>
+          </ul>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={onContinueAnyway}
+              className="bg-accent text-accent-ink font-semibold px-6 py-3 rounded-xl hover:bg-accent-soft transition"
+            >
+              I feel okay to continue
+            </button>
+            <button
+              onClick={onLeave}
+              className="border border-hairline text-ink px-6 py-3 rounded-xl hover:border-accent transition"
+            >
+              Not right now — that's alright
+            </button>
+          </div>
+        </Panel>
+      )}
+    </div>
+  );
+}
+
+function Panel({ children }) {
+  return (
+    <div className="mt-6 bg-surface border border-hairline rounded-xl p-5">
+      {children}
     </div>
   );
 }

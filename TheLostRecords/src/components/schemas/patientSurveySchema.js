@@ -1,9 +1,25 @@
+// src/components/schemas/patientSurveySchema.js
+//
+// REDESIGN v2 — one question per screen, scale5 instead of sliders,
+// chips instead of grids, adaptive by care setting.
+//
+// Field types in use: radio | multiselect | dropdown | email | text | scale5 | breath | info
+//   scale5  → needs leftLabel + rightLabel (5 = positive pole)
+//   breath  → a transition screen; not stored. needs `copy`.
+//   chips   → multiselect; options can be static `options`, dynamic
+//             (dynamicOptionsFrom + optionsMap), or `optionsByCategory`.
+//
+// Lines marked  // CAM:  are open decisions from SURVEY_MAP.md — defaults are
+// the map's provisional content. Change the strings freely; the engine doesn't
+// care about wording.
+
 export const patientSurveySchema = [
-  // SECTION 1: Welcome + Consent
+  // 1 ── Welcome / Consent
   {
     id: "consent",
     title: "Welcome to Lost Records",
-    intro: `This anonymous survey collects real stories from people who’ve received institutional mental health care. Your experience matters. Your responses will help change policies and protect future patients. You can stop at any time. No typing is required.`,
+    intro:
+      "This anonymous survey collects real stories from people who've received institutional mental health care. You can stop at any time. No typing is required.",
     fields: [
       {
         name: "consent",
@@ -12,232 +28,241 @@ export const patientSurveySchema = [
         options: [
           { label: "Yes", value: "yes" },
           { label: "No", value: "no" },
-          { label: "I’m not sure", value: "unsure" }
-        ]
-      }
-    ]
+          { label: "I'm not sure", value: "unsure" },
+        ],
+      },
+    ],
   },
 
-  // SECTION 2: Care Overview
+  // 2 ── Care Settings (the adaptive spine)
   {
     id: "care-overview",
     title: "Your Care Settings",
-    intro: `Let’s begin by identifying the kinds of mental health care you’ve received. This version of the survey focuses on institutional settings like hospitalization or court-ordered programs.`,
+    intro:
+      "Let's begin with the kinds of mental health care you've received.",
     fields: [
       {
         name: "careSettings",
-        type: "multi-select",
-        label: "Which of the following care settings have you experienced?",
+        type: "multiselect",
+        label: "Which of these care settings have you experienced?",
         options: [
           { label: "Inpatient psychiatric hospitalization", value: "inpatient" },
-          { label: "PHP/IOP (Partial Hospitalization / Intensive Outpatient Program)", value: "php" },
+          { label: "PHP / IOP (partial or intensive outpatient)", value: "php" },
           { label: "Court-ordered or police-involved care", value: "court" },
           { label: "Outpatient therapy or psychiatry only", value: "outpatient" },
-          { label: "Other (e.g., peer-led, community-based, spiritual)", value: "other" }
-        ]
-      }
-    ]
+          { label: "Other (peer-led, community, spiritual)", value: "other" },
+        ],
+      },
+    ],
   },
 
-  // Follow-up frequency questions (conditional)
+  // 3 ── Repeat Experiences (skipped if no institutional setting)
   {
-  id: "care-frequency",
-  title: "Repeat Experiences",
-  fields: [
-    // INPATIENT
-    {
-      name: "inpatientMultiple",
-      type: "radio",
-      label: "Have you experienced more than one psychiatric hospitalization?",
-      condition: { field: "careSettings", includes: "inpatient" },
-      options: [
-        { label: "Yes", value: "yes" },
-        { label: "No", value: "no" },
-        { label: "I’m not sure", value: "unsure" }
-      ]
-    },
-    {
-      name: "inpatientTotal",
-      type: "dropdown",
-      label: "How many psychiatric hospitalizations have you had?",
-      condition: {
-        field: "inpatientMultiple",
-        equals: "yes"
+    id: "care-frequency",
+    title: "Repeat Experiences",
+    fields: [
+      {
+        name: "inpatientMultiple",
+        type: "radio",
+        label: "Have you had more than one psychiatric hospitalization?",
+        condition: { field: "careSettings", includes: "inpatient" },
+        options: yesNoUnsure(),
       },
-      options: [
-        { label: "2", value: "2" },
-        { label: "3", value: "3" },
-        { label: "4–5", value: "4-5" },
-        { label: "6–9", value: "6-9" },
-        { label: "10+", value: "10+" }
-      ]
-    },
-
-    // PHP/IOP
-    {
-      name: "phpMultiple",
-      type: "radio",
-      label: "Have you participated in more than one PHP/IOP program?",
-      condition: { field: "careSettings", includes: "php" },
-      options: [
-        { label: "Yes", value: "yes" },
-        { label: "No", value: "no" },
-        { label: "I’m not sure", value: "unsure" }
-      ]
-    },
-    {
-      name: "phpTotal",
-      type: "dropdown",
-      label: "How many PHP/IOP programs have you participated in?",
-      condition: {
-        field: "phpMultiple",
-        equals: "yes"
+      {
+        name: "inpatientTotal",
+        type: "dropdown",
+        label: "How many psychiatric hospitalizations have you had?",
+        condition: { field: "inpatientMultiple", equals: "yes" },
+        options: countOptions(),
       },
-      options: [
-        { label: "2", value: "2" },
-        { label: "3", value: "3" },
-        { label: "4–5", value: "4-5" },
-        { label: "6–9", value: "6-9" },
-        { label: "10+", value: "10+" }
-      ]
-    },
-
-    // COURT-ORDERED
-    {
-      name: "courtMultiple",
-      type: "radio",
-      label: "Have you had more than one episode of court-ordered or police-involved care?",
-      condition: { field: "careSettings", includes: "court" },
-      options: [
-        { label: "Yes", value: "yes" },
-        { label: "No", value: "no" },
-        { label: "I’m not sure", value: "unsure" }
-      ]
-    },
-    {
-      name: "courtTotal",
-      type: "dropdown",
-      label: "How many court-ordered or police-involved episodes have you had?",
-      condition: {
-        field: "courtMultiple",
-        equals: "yes"
+      {
+        name: "phpMultiple",
+        type: "radio",
+        label: "Have you participated in more than one PHP / IOP program?",
+        condition: { field: "careSettings", includes: "php" },
+        options: yesNoUnsure(),
       },
-      options: [
-        { label: "2", value: "2" },
-        { label: "3", value: "3" },
-        { label: "4–5", value: "4-5" },
-        { label: "6–9", value: "6-9" },
-        { label: "10+", value: "10+" }
-      ]
-    }
-  ]
-},
+      {
+        name: "phpTotal",
+        type: "dropdown",
+        label: "How many PHP / IOP programs have you participated in?",
+        condition: { field: "phpMultiple", equals: "yes" },
+        options: countOptions(),
+      },
+      {
+        name: "courtMultiple",
+        type: "radio",
+        label:
+          "Have you had more than one court-ordered or police-involved episode?",
+        condition: { field: "careSettings", includes: "court" },
+        options: yesNoUnsure(),
+      },
+      {
+        name: "courtTotal",
+        type: "dropdown",
+        label: "How many court-ordered or police-involved episodes have you had?",
+        condition: { field: "courtMultiple", equals: "yes" },
+        options: countOptions(),
+      },
+    ],
+  },
 
-  // SECTION 3A: Select Focus Experience
+  // 4 ── Focus Experience (only when 2+ settings selected)
   {
     id: "focus-experience",
     title: "Focus Experience",
-    intro: `You’ve experienced more than one kind of care. For now, we’d like to focus on one specific experience—the one that stands out most to you.`,
+    intro:
+      "You've experienced more than one kind of care. For now, let's focus on the one that stands out most.",
     fields: [
       {
         name: "focusType",
         type: "radio",
-        label: "Which care experience would you like to focus on?",
+        label: "Which experience would you like to focus on?",
+        condition: { multipleSettings: true },
         dynamicOptionsFrom: "careSettings",
         optionsMap: {
           inpatient: "Inpatient hospitalization",
-          php: "PHP/IOP",
-          court: "Court-ordered or police-involved care"
-        }
+          php: "PHP / IOP",
+          court: "Court-ordered or police-involved care",
+          outpatient: "Outpatient therapy / psychiatry", // CAM: confirm wording
+          other: "Other care", // CAM: confirm wording
+        },
       },
       {
         name: "focusDetail",
         type: "radio",
-        label: "Which experience do you want to focus on?",
-        condition: {
-          field: "focusType",
-          hasMultipleExposure: true
-        },
+        label: "Which one specifically?",
+        condition: { hasMultipleExposure: true },
         options: [
           { label: "My first experience", value: "first" },
           { label: "My most recent experience", value: "recent" },
-          { label: "The most significant experience (positive or negative)", value: "significant" },
-          { label: "I’m not sure", value: "unsure" }
-        ]
-      }
-    ]
+          { label: "The most significant one", value: "significant" },
+          { label: "I'm not sure", value: "unsure" },
+        ],
+      },
+    ],
   },
 
-  // SECTION 4: What Happened
+  // 5 ── Age at the time (moved early)
+  {
+    id: "focus-age",
+    title: "About That Time",
+    fields: [
+      {
+        name: "ageAtExperience",
+        type: "radio",
+        label: "About how old were you during that experience?",
+        options: [
+          { label: "Under 18", value: "<18" },
+          { label: "18–25", value: "18-25" },
+          { label: "26–40", value: "26-40" },
+          { label: "Over 40", value: "40+" },
+        ],
+      },
+    ],
+  },
+
+  // breath screen before the heavy section
+  {
+    id: "breath-1",
+    title: "",
+    fields: [
+      {
+        name: "_breath1",
+        type: "breath",
+        copy: "Let's talk about what happened. Take your time. Tap only what fits — you can skip anything.",
+      },
+    ],
+  },
+
+  // 6 ── What Happened
   {
     id: "what-happened",
     title: "What Happened",
-    intro: `Let’s talk about what happened during your selected experience.`,
     fields: [
       {
         name: "harmExperiences",
-        type: "grid",
-        label: "Did you experience any of the following?",
-        gridOptions: [
-          "Physical restraint",
-          "Forced medication",
-          "Seclusion or isolation",
-          "Strip search or nudity",
-          "Verbal abuse",
-          "Racial or gender identity-based discrimination",
-          "Neglect (e.g., hunger, ignored symptoms)",
-          "Loss of belongings",
-          "Something else"
-        ],
-        columns: ["Yes", "No", "Not sure"]
+        type: "multiselect",
+        label: "Select anything you experienced.",
+        // CAM: confirm both lists' wording (SURVEY_MAP Step 6)
+        optionsByCategory: {
+          institutional: [
+            { label: "Physical restraint", value: "restraint" },
+            { label: "Forced medication", value: "forced-meds" },
+            { label: "Seclusion or isolation", value: "seclusion" },
+            { label: "Strip search or forced nudity", value: "strip-search" },
+            { label: "Verbal abuse", value: "verbal-abuse" },
+            { label: "Racial or gender-identity-based mistreatment", value: "discrimination" },
+            { label: "Denied basic needs", value: "neglect" },
+            { label: "Not listened to", value: "not-heard" },
+            { label: "Held longer than needed", value: "held-long" },
+          ],
+          outpatient: [
+            { label: "Dismissed or not believed", value: "dismissed" },
+            { label: "Misdiagnosed", value: "misdiagnosed" },
+            { label: "Medication mishandled", value: "med-mishandled" },
+            { label: "Boundary violation", value: "boundary" },
+            { label: "Confidentiality broken", value: "confidentiality" },
+            { label: "Shamed or judged", value: "shamed" },
+            { label: "Pushed treatment I didn't want", value: "pushed-treatment" },
+            { label: "Couldn't get follow-up", value: "no-followup" },
+          ],
+        },
+        allowOther: true, // appends a "Something else / hard to name" chip
+      },
+      {
+        name: "harmOther",
+        type: "text",
+        label: "What else happened? (optional)",
+        condition: { field: "harmExperiences", includes: "other" },
+        placeholder: "In your own words…",
       },
       {
         name: "wasTraumatic",
         type: "radio",
-        label: "Would you describe any part of this experience as traumatic?",
-        options: [
-          { label: "Yes", value: "yes" },
-          { label: "No", value: "no" },
-          { label: "Not sure", value: "unsure" }
-        ]
+        label: "Would you describe any part of this as traumatic?",
+        options: yesNoNotSure(),
       },
       {
         name: "emotionalSafety",
-        type: "slider",
+        type: "scale5",
         label: "Did you feel emotionally safe?",
-        min: 0,
-        max: 10
-      }
-    ]
+        leftLabel: "Not at all safe",
+        rightLabel: "Completely safe",
+      },
+    ],
   },
 
-  // SECTION 5: What Helped or Didn’t
+  // 7 ── What Helped or Didn't
   {
     id: "care-quality",
-    title: "What Helped or Didn’t",
-    intro: `Thinking about that same experience, what helped or hurt your recovery?`,
+    title: "What Helped or Didn't",
     fields: [
       {
-        name: "careComponentsImpact",
-        type: "grid",
-        label: "How did each of these affect you?",
-        gridOptions: [
-          "Medication",
-          "Therapy or groups",
-          "Peer support",
-          "Nurses or aides",
-          "Doctors or psychiatrists",
-          "Rules and policies",
-          "Physical environment"
-        ],
-        columns: ["Helped", "Hurt", "Neutral", "Not applicable"]
+        name: "helpedComponents",
+        type: "multiselect",
+        label: "Which of these helped?",
+        // CAM: confirm component list
+        optionsByCategory: {
+          institutional: componentList(true),
+          outpatient: componentList(false),
+        },
+      },
+      {
+        name: "hurtComponents",
+        type: "multiselect",
+        label: "Which of these made things worse?",
+        optionsByCategory: {
+          institutional: componentList(true),
+          outpatient: componentList(false),
+        },
       },
       {
         name: "feltListenedTo",
-        type: "slider",
+        type: "scale5",
         label: "Did you feel listened to by staff?",
-        min: 0,
-        max: 10
+        leftLabel: "Not at all",
+        rightLabel: "Completely",
       },
       {
         name: "treatmentUnderstanding",
@@ -246,42 +271,37 @@ export const patientSurveySchema = [
         options: [
           { label: "Yes", value: "yes" },
           { label: "Somewhat", value: "somewhat" },
-          { label: "No", value: "no" }
-        ]
-      }
-    ]
+          { label: "No", value: "no" },
+        ],
+      },
+    ],
   },
 
-  // SECTION 6: Outcomes
+  // 8 ── How It Affected You
   {
     id: "outcomes",
     title: "How It Affected You",
-    intro: `Let’s look at how that experience affected your life.`,
     fields: [
       {
         name: "mentalHealthChange",
-        type: "slider",
+        type: "scale5",
         label: "How has your mental health changed since this care?",
-        min: -5,
-        max: 5,
-        scaleLabels: ["Much worse", "Much better"]
+        leftLabel: "Much worse",
+        rightLabel: "Much better",
       },
       {
         name: "trustChange",
-        type: "slider",
-        label: "Did this experience increase or decrease your trust in mental health providers?",
-        min: 0,
-        max: 10
+        type: "scale5",
+        label:
+          "Did this change your trust in mental health providers?",
+        leftLabel: "Much less trust",
+        rightLabel: "Much more trust",
       },
       {
         name: "avoidance",
         type: "radio",
         label: "Have you avoided future care because of what happened?",
-        options: [
-          { label: "Yes", value: "yes" },
-          { label: "No", value: "no" },
-          { label: "Not sure", value: "unsure" }
-        ]
+        options: yesNoNotSure(),
       },
       {
         name: "loopBack",
@@ -289,21 +309,27 @@ export const patientSurveySchema = [
         label: "Would you like to focus on another care experience?",
         options: [
           { label: "Yes", value: "yes" },
-          { label: "No", value: "no" }
-        ]
-      }
-    ]
+          { label: "No", value: "no" },
+        ],
+      },
+      {
+        name: "loopBackNote",
+        type: "info",
+        label:
+          "Thank you. You'll be able to add another experience in a future version of this survey.",
+        condition: { field: "loopBack", equals: "yes" },
+      },
+    ],
   },
 
-  // SECTION 7: Access + Barriers
+  // 9 ── Access + Barriers
   {
     id: "barriers",
     title: "Access + Barriers",
-    intro: `Now let’s look at what made it easier—or harder—for you to access care.`,
     fields: [
       {
         name: "barriers",
-        type: "multi-select",
+        type: "multiselect",
         label: "Which of these were barriers to care?",
         options: [
           { label: "Cost or insurance", value: "cost" },
@@ -313,8 +339,8 @@ export const patientSurveySchema = [
           { label: "Transportation", value: "transport" },
           { label: "Prior trauma", value: "trauma" },
           { label: "Legal restrictions", value: "legal" },
-          { label: "None of these", value: "none" }
-        ]
+          { label: "None of these", value: "none" },
+        ],
       },
       {
         name: "deniedCare",
@@ -322,44 +348,39 @@ export const patientSurveySchema = [
         label: "Have you ever been denied care?",
         options: [
           { label: "Yes", value: "yes" },
-          { label: "No", value: "no" }
-        ]
+          { label: "No", value: "no" },
+        ],
       },
       {
         name: "identityImpact",
         type: "radio",
         label: "Did your identity affect how you were treated?",
-        options: [
-          { label: "Yes", value: "yes" },
-          { label: "No", value: "no" },
-          { label: "Not sure", value: "unsure" }
-        ]
-      }
-    ]
+        options: yesNoNotSure(),
+      },
+    ],
   },
 
-  // SECTION 8: Time + Place
+  // 10 ── Time + Place
   {
     id: "time-place",
     title: "Time + Place",
-    intro: `These questions help us understand where and when care occurred.`,
     fields: [
       {
         name: "stateLocation",
         type: "dropdown",
         label: "Where were you living at the time?",
-        options: [/* list of US states + "Outside U.S." */]
+        options: stateOptions(),
       },
       {
         name: "whenOccurred",
         type: "radio",
-        label: "When did this experience happen?",
+        label: "When did this happen?",
         options: [
           { label: "Within the last year", value: "0-1" },
           { label: "1–3 years ago", value: "1-3" },
           { label: "4–6 years ago", value: "4-6" },
-          { label: "7+ years ago", value: "7+" }
-        ]
+          { label: "7+ years ago", value: "7+" },
+        ],
       },
       {
         name: "multiState",
@@ -367,41 +388,51 @@ export const patientSurveySchema = [
         label: "Have you received care in more than one state?",
         options: [
           { label: "Yes", value: "yes" },
-          { label: "No", value: "no" }
-        ]
-      }
-    ]
+          { label: "No", value: "no" },
+        ],
+      },
+    ],
   },
 
-  // SECTION 9: Optional Reflection
+  // 11 ── Optional Reflection
+  // CAM: voice-note / visual-card capture is NOT built. Options below currently
+  // do nothing if chosen. Decide: keep as-is, or cut to skip-only for Phase 1.
   {
     id: "reflection",
     title: "Optional Reflection",
-    intro: `Would you like to share a message for policymakers, providers, or other patients?`,
+    intro:
+      "Would you like to leave a message for policymakers, providers, or other patients?",
     fields: [
       {
         name: "reflectionType",
         type: "radio",
         label: "Choose one (optional):",
         options: [
-          { label: "Record voice note", value: "voice" },
-          { label: "Choose visual card", value: "visual" },
-          { label: "Skip", value: "skip" }
-        ]
-      }
-    ]
+          { label: "Write a short message", value: "text" }, // CAM: swapped voice→text since voice isn't built
+          { label: "Skip", value: "skip" },
+        ],
+      },
+      {
+        name: "reflectionText",
+        type: "text",
+        label: "Your message (optional)",
+        condition: { field: "reflectionType", equals: "text" },
+        placeholder: "Anything you'd like to say…",
+        multiline: true,
+      },
+    ],
   },
 
-  // SECTION 10: About You
+  // 12 ── About You
   {
     id: "demographics",
     title: "About You",
-    intro: `These questions help us understand who is most affected. Your identity will never be connected to your name.`,
+    intro: "These help us understand who is most affected. Never tied to your name.",
     fields: [
       {
         name: "age",
         type: "radio",
-        label: "What is your age?",
+        label: "How old are you now?",
         options: [
           { label: "Under 18", value: "<18" },
           { label: "18–24", value: "18-24" },
@@ -409,27 +440,27 @@ export const patientSurveySchema = [
           { label: "35–44", value: "35-44" },
           { label: "45–54", value: "45-54" },
           { label: "55–64", value: "55-64" },
-          { label: "65+", value: "65+" }
-        ]
+          { label: "65+", value: "65+" },
+        ],
       },
       {
         name: "gender",
-        type: "multi-select",
-        label: "Gender Identity",
+        type: "multiselect",
+        label: "Gender identity",
         options: [
-          { label: "Cis Woman", value: "cis-woman" },
-          { label: "Cis Man", value: "cis-man" },
+          { label: "Cis woman", value: "cis-woman" },
+          { label: "Cis man", value: "cis-man" },
           { label: "Nonbinary / gender non-conforming", value: "nonbinary" },
-          { label: "Trans Woman", value: "trans-woman" },
-          { label: "Trans Man", value: "trans-man" },
+          { label: "Trans woman", value: "trans-woman" },
+          { label: "Trans man", value: "trans-man" },
           { label: "Other", value: "other" },
-          { label: "Prefer not to say", value: "prefer-not" }
-        ]
+          { label: "Prefer not to say", value: "prefer-not" },
+        ],
       },
       {
         name: "raceEthnicity",
-        type: "multi-select",
-        label: "Race / Ethnicity",
+        type: "multiselect",
+        label: "Race / ethnicity",
         options: [
           { label: "Black / African American", value: "black" },
           { label: "Latino/a/x", value: "latinx" },
@@ -438,18 +469,14 @@ export const patientSurveySchema = [
           { label: "Native / Indigenous", value: "indigenous" },
           { label: "Middle Eastern / North African", value: "mena" },
           { label: "Multiracial", value: "multi" },
-          { label: "Other", value: "other" }
-        ]
+          { label: "Other", value: "other" },
+        ],
       },
       {
         name: "disability",
         type: "radio",
         label: "Do you consider yourself disabled?",
-        options: [
-          { label: "Yes", value: "yes" },
-          { label: "No", value: "no" },
-          { label: "Unsure", value: "unsure" }
-        ]
+        options: yesNoUnsure(),
       },
       {
         name: "insurance",
@@ -460,13 +487,13 @@ export const patientSurveySchema = [
           { label: "Medicaid", value: "medicaid" },
           { label: "Medicare", value: "medicare" },
           { label: "None", value: "none" },
-          { label: "Other", value: "other" }
-        ]
-      }
-    ]
+          { label: "Other", value: "other" },
+        ],
+      },
+    ],
   },
 
-  // FINAL: Thank You + Opt-In
+  // 13 ── Stay Involved
   {
     id: "follow-up",
     title: "Stay Involved",
@@ -474,39 +501,97 @@ export const patientSurveySchema = [
       {
         name: "summaryOptIn",
         type: "radio",
-        label: "Would you like to receive a summary of the results?",
+        label: "Would you like a summary of the results?",
         options: [
           { label: "Yes", value: "yes" },
-          { label: "No", value: "no" }
-        ]
+          { label: "No", value: "no" },
+        ],
       },
       {
         name: "advocacyOptIn",
         type: "radio",
-        label: "Would you like to receive advocacy materials or updates?",
+        label: "Would you like advocacy materials or updates?",
         options: [
           { label: "Yes", value: "yes" },
-          { label: "No", value: "no" }
-        ]
+          { label: "No", value: "no" },
+        ],
       },
       {
         name: "interviewOptIn",
         type: "radio",
-        label: "Are you open to being contacted for a follow-up interview?",
+        label: "Open to being contacted for a follow-up interview?",
         options: [
           { label: "Yes", value: "yes" },
-          { label: "No", value: "no" }
-        ]
+          { label: "No", value: "no" },
+        ],
       },
       {
         name: "email",
         type: "email",
-        label: "Your email address (only shown if any opt-in is 'yes')",
+        label: "Your email address",
         condition: {
           anyOf: ["summaryOptIn", "advocacyOptIn", "interviewOptIn"],
-          equals: "yes"
-        }
-      }
-    ]
-  }
+          equals: "yes",
+        },
+      },
+    ],
+  },
 ];
+
+// ── small builders to keep the schema readable ───────────────────────────────
+function yesNoUnsure() {
+  return [
+    { label: "Yes", value: "yes" },
+    { label: "No", value: "no" },
+    { label: "I'm not sure", value: "unsure" },
+  ];
+}
+function yesNoNotSure() {
+  return [
+    { label: "Yes", value: "yes" },
+    { label: "No", value: "no" },
+    { label: "Not sure", value: "unsure" },
+  ];
+}
+function countOptions() {
+  return [
+    { label: "2", value: "2" },
+    { label: "3", value: "3" },
+    { label: "4–5", value: "4-5" },
+    { label: "6–9", value: "6-9" },
+    { label: "10+", value: "10+" },
+  ];
+}
+function componentList(institutional) {
+  const base = [
+    { label: "Medication", value: "medication" },
+    { label: "Therapy or groups", value: "therapy" },
+    { label: "Peer support", value: "peer" },
+    { label: "Doctors or prescribers", value: "doctors" },
+    { label: "Family involvement", value: "family" },
+    { label: "Discharge / follow-up planning", value: "discharge" },
+  ];
+  if (institutional) {
+    base.splice(3, 0, { label: "Nurses or aides", value: "nurses" });
+  }
+  return base;
+}
+function stateOptions() {
+  const states = [
+    ["AL", "Alabama"], ["AK", "Alaska"], ["AZ", "Arizona"], ["AR", "Arkansas"],
+    ["CA", "California"], ["CO", "Colorado"], ["CT", "Connecticut"], ["DE", "Delaware"],
+    ["FL", "Florida"], ["GA", "Georgia"], ["HI", "Hawaii"], ["ID", "Idaho"],
+    ["IL", "Illinois"], ["IN", "Indiana"], ["IA", "Iowa"], ["KS", "Kansas"],
+    ["KY", "Kentucky"], ["LA", "Louisiana"], ["ME", "Maine"], ["MD", "Maryland"],
+    ["MA", "Massachusetts"], ["MI", "Michigan"], ["MN", "Minnesota"], ["MS", "Mississippi"],
+    ["MO", "Missouri"], ["MT", "Montana"], ["NE", "Nebraska"], ["NV", "Nevada"],
+    ["NH", "New Hampshire"], ["NJ", "New Jersey"], ["NM", "New Mexico"], ["NY", "New York"],
+    ["NC", "North Carolina"], ["ND", "North Dakota"], ["OH", "Ohio"], ["OK", "Oklahoma"],
+    ["OR", "Oregon"], ["PA", "Pennsylvania"], ["RI", "Rhode Island"], ["SC", "South Carolina"],
+    ["SD", "South Dakota"], ["TN", "Tennessee"], ["TX", "Texas"], ["UT", "Utah"],
+    ["VT", "Vermont"], ["VA", "Virginia"], ["WA", "Washington"], ["WV", "West Virginia"],
+    ["WI", "Wisconsin"], ["WY", "Wyoming"], ["DC", "District of Columbia"],
+    ["OUS", "Outside the U.S."],
+  ];
+  return states.map(([value, label]) => ({ value, label }));
+}

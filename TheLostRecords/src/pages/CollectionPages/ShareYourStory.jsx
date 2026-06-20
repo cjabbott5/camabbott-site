@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import Layout from "@/components/layout/Layout";
+import CrisisResources from "@/components/ui/CrisisResources";
 import { Link, useNavigate } from "react-router-dom";
 
 const roles = ["Patient", "Provider", "Advocate", "Other"];
@@ -89,6 +90,11 @@ const prompts = {
   ],
 };
 
+const primaryBtn =
+  "inline-flex justify-center bg-accent text-accent-ink font-semibold px-6 py-3 rounded-xl text-center transition hover:bg-accent-soft hover:text-accent-ink hover:no-underline";
+const secondaryBtn =
+  "inline-flex justify-center border border-hairline text-ink font-semibold px-6 py-3 rounded-xl text-center transition hover:border-accent hover:text-ink hover:no-underline";
+
 export default function ShareYourStory() {
   const navigate = useNavigate();
 
@@ -105,7 +111,7 @@ export default function ShareYourStory() {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(null); // { id, editUrl }
+  const [success, setSuccess] = useState(null);
 
   const availableTags = useMemo(() => tagOptionsByRole[role] || [], [role]);
 
@@ -133,8 +139,6 @@ export default function ShareYourStory() {
 
     setSubmitting(true);
     try {
-      // NOTE: In production, the server should generate the edit token
-      // and return an editUrl. This is just the client making the request.
       const payload = {
         role,
         story: response.trim(),
@@ -144,10 +148,9 @@ export default function ShareYourStory() {
         consent: {
           research: consentResearch,
           contactOk: consentContact,
-          publicOk: consentPublic, // whether they want it publicly featured
+          publicOk: consentPublic,
         },
-        // recommended defaults:
-        status: "pending", // moderation queue
+        status: "pending",
       };
 
       const res = await fetch("/api/stories", {
@@ -162,10 +165,7 @@ export default function ShareYourStory() {
       }
 
       const data = await res.json();
-      // expected: { id: "abc123", editUrl: "/collection/story/edit/abc123?token=..." }
       setSuccess({ id: data.id, editUrl: data.editUrl });
-
-      // Optional: scroll to top and keep them on the page
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (e) {
       setError(e?.message || "Something went wrong. Please try again.");
@@ -178,33 +178,30 @@ export default function ShareYourStory() {
     return (
       <Layout>
         <div className="max-w-3xl mx-auto px-4 py-10">
-          <h1 className="text-3xl font-semibold mb-4 text-sky-300">Story received</h1>
-          <p className="text-zinc-300 leading-relaxed mb-6">
+          <h1 className="text-3xl font-semibold mb-4 text-accent">Story received</h1>
+          <p className="text-muted leading-relaxed mb-6">
             Your submission has been saved. To protect contributors and keep the archive trustworthy,
             stories appear publicly after a brief review.
           </p>
 
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-8">
-            <p className="text-white font-semibold mb-2">Save this private edit link</p>
-            <p className="text-zinc-300 text-sm mb-4">
+          <div className="bg-surface border border-hairline rounded-xl p-6 mb-8">
+            <p className="text-ink font-semibold mb-2">Save this private edit link</p>
+            <p className="text-muted text-sm mb-4">
               This link lets you edit your submission later without creating an account.
               Keep it private.
             </p>
-            <div className="break-all text-sky-300 underline">
+            <div className="break-all text-accent underline">
               <a href={success.editUrl}>{success.editUrl}</a>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link
-              to="/responses/narratives"
-              className="bg-black text-white px-6 py-3 rounded-md text-center border border-zinc-800 hover:border-zinc-600 transition"
-            >
+            <Link to="/responses/narratives" className={secondaryBtn}>
               View Narratives
             </Link>
             <button
               onClick={() => navigate("/collection")}
-              className="border border-black bg-sky-300 text-black px-6 py-3 rounded-md text-center hover:opacity-90 transition"
+              className={primaryBtn}
             >
               Back to Contribute
             </button>
@@ -217,23 +214,27 @@ export default function ShareYourStory() {
   return (
     <Layout>
       <div className="max-w-3xl mx-auto px-4 py-10">
-        <h1 className="text-3xl font-semibold mb-6 text-sky-300">Share Your Story</h1>
+        <div className="mb-8">
+          <CrisisResources variant="compact" />
+        </div>
 
-        <div className="mb-8 space-y-4 text-zinc-300 text-sm">
+        <h1 className="text-3xl font-semibold mb-6 text-accent">Share Your Story</h1>
+
+        <div className="mb-8 space-y-4 text-muted text-sm">
           <p>
             This platform exists to collect and elevate real stories from across the mental health
-            landscape—whether you're a patient, provider, advocate, or someone with insight to share.
+            landscape — whether you're a patient, provider, advocate, or someone with insight to share.
           </p>
           <p>Submissions are voluntary and anonymous unless you choose otherwise. Contributors may receive:</p>
           <ul className="list-disc list-inside pl-4">
             <li>A copy of their story for personal records</li>
-            <li>The option to be featured on the “Responses” page</li>
+            <li>The option to be featured on the "Responses" page</li>
             <li>An opportunity to support data-driven reform and advocacy efforts</li>
           </ul>
           <p>
-            Our goal is to bring these stories to the people who can make a difference—decision makers,
-            clinicians, policymakers—and to do so with clarity, compassion, and purpose. See our vision on the{" "}
-            <Link to="/vision/future" className="text-sky-300 underline">
+            Our goal is to bring these stories to the people who can make a difference — decision makers,
+            clinicians, policymakers — and to do so with clarity, compassion, and purpose. See our vision on the{" "}
+            <Link to="/vision/future" className="text-accent hover:text-accent-soft">
               About the Future
             </Link>{" "}
             page.
@@ -241,20 +242,20 @@ export default function ShareYourStory() {
         </div>
 
         {error && (
-          <div className="mb-6 bg-red-950/40 border border-red-900 text-red-200 rounded-xl p-4">
+          <div className="mb-6 bg-danger/10 border border-danger/40 text-danger rounded-xl p-4">
             {error}
           </div>
         )}
 
         <div className="mb-6">
-          <label className="block text-sm text-zinc-400 mb-2">What role best describes you?</label>
+          <label className="block text-sm text-muted mb-2">What role best describes you?</label>
           <select
             value={role}
             onChange={(e) => {
               setRole(e.target.value);
               setSelectedTags([]);
             }}
-            className="w-full bg-zinc-800 text-white border border-zinc-700 rounded p-2"
+            className="w-full bg-surface text-ink border border-hairline rounded-lg p-2 focus:outline-none focus:border-accent"
           >
             <option value="">Select your role</option>
             {roles.map((r) => (
@@ -268,35 +269,35 @@ export default function ShareYourStory() {
         {role && (
           <>
             <div className="mb-6">
-              <label className="block text-sm text-zinc-400 mb-2">Reflection Prompts (optional):</label>
-              <ul className="list-disc list-inside text-zinc-300 mb-4">
+              <label className="block text-sm text-muted mb-2">Reflection Prompts (optional):</label>
+              <ul className="list-disc list-inside text-muted mb-4">
                 {prompts[role].map((p, idx) => (
                   <li key={idx}>{p}</li>
                 ))}
               </ul>
 
-              <label className="block text-sm text-zinc-400 mb-2">Your Story:</label>
+              <label className="block text-sm text-muted mb-2">Your Story:</label>
               <textarea
                 placeholder="Share what you've lived. What you've seen. What others need to hear."
                 rows={10}
                 value={response}
                 onChange={(e) => setResponse(e.target.value)}
-                className="w-full bg-zinc-800 text-white border border-zinc-700 rounded p-3"
+                className="w-full bg-surface text-ink border border-hairline rounded-lg p-3 placeholder-faint focus:outline-none focus:border-accent"
               />
             </div>
 
             <div className="mb-8">
-              <label className="block text-sm text-zinc-400 mb-2">
+              <label className="block text-sm text-muted mb-2">
                 What themes or topics does your story include? (select all that apply)
               </label>
               <div className="flex flex-wrap gap-2">
                 {availableTags.map((tag) => (
                   <label
                     key={tag}
-                    className={`px-3 py-1 text-sm border rounded cursor-pointer transition ${
+                    className={`px-3 py-1 text-sm border rounded-lg cursor-pointer transition ${
                       selectedTags.includes(tag)
-                        ? "bg-sky-600 border-sky-500 text-white"
-                        : "bg-zinc-800 border-zinc-600 text-zinc-300 hover:border-sky-400"
+                        ? "bg-accent border-accent text-accent-ink"
+                        : "bg-surface border-hairline text-muted hover:border-accent"
                     }`}
                   >
                     <input
@@ -315,33 +316,33 @@ export default function ShareYourStory() {
         )}
 
         <div className="mb-6">
-          <label className="block text-sm text-zinc-400 mb-2">Your name (optional):</label>
+          <label className="block text-sm text-muted mb-2">Your name (optional):</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full bg-zinc-800 text-white border border-zinc-700 rounded p-2"
+            className="w-full bg-surface text-ink border border-hairline rounded-lg p-2 focus:outline-none focus:border-accent"
           />
         </div>
 
         <div className="mb-8">
-          <label className="block text-sm text-zinc-400 mb-2">Your email (optional):</label>
+          <label className="block text-sm text-muted mb-2">Your email (optional):</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-zinc-800 text-white border border-zinc-700 rounded p-2"
+            className="w-full bg-surface text-ink border border-hairline rounded-lg p-2 focus:outline-none focus:border-accent"
           />
           {consentContact && !email.trim() && (
-            <p className="text-xs text-red-200 mt-2">Email is required if you want follow-up contact.</p>
+            <p className="text-xs text-danger mt-2">Email is required if you want follow-up contact.</p>
           )}
         </div>
 
-        <div className="mb-6 space-y-2 text-sm text-zinc-300">
+        <div className="mb-6 space-y-2 text-sm text-muted">
           <label className="flex items-start gap-2">
             <input
               type="checkbox"
-              className="mt-1"
+              className="mt-1 accent-accent"
               checked={consentResearch}
               onChange={(e) => setConsentResearch(e.target.checked)}
               required
@@ -349,7 +350,7 @@ export default function ShareYourStory() {
             <span>
               I consent to my story being used for anonymous research, advocacy, and publication purposes,
               as outlined on the{" "}
-              <Link to="/vision/future" className="underline text-sky-300">
+              <Link to="/vision/future" className="text-accent hover:text-accent-soft">
                 About the Future
               </Link>{" "}
               page.
@@ -359,7 +360,7 @@ export default function ShareYourStory() {
           <label className="flex items-start gap-2">
             <input
               type="checkbox"
-              className="mt-1"
+              className="mt-1 accent-accent"
               checked={consentContact}
               onChange={(e) => setConsentContact(e.target.checked)}
             />
@@ -369,18 +370,18 @@ export default function ShareYourStory() {
           <label className="flex items-start gap-2">
             <input
               type="checkbox"
-              className="mt-1"
+              className="mt-1 accent-accent"
               checked={consentPublic}
               onChange={(e) => setConsentPublic(e.target.checked)}
             />
-            <span>I agree to have my story publicly featured on the “Responses” page (you may remain anonymous).</span>
+            <span>I agree to have my story publicly featured on the "Responses" page (you may remain anonymous).</span>
           </label>
         </div>
 
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          className="bg-sky-500 hover:bg-sky-600 disabled:opacity-60 text-white font-medium px-6 py-2 rounded"
+          className="bg-accent hover:bg-accent-soft disabled:opacity-60 text-accent-ink font-semibold px-6 py-3 rounded-xl transition"
         >
           {submitting ? "Submitting..." : "Submit"}
         </button>
