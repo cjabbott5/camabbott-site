@@ -23,15 +23,7 @@ const navItems = [
     ],
   },
   { name: 'The Case', path: '/case', children: [] },
-  {
-    name: 'The Vision',
-    path: '/vision',
-    children: [
-      { name: 'Overview', path: '/vision' },
-      { name: 'About the Founder', path: '/vision/founder' },
-      { name: 'About the Future', path: '/vision/future' },
-    ],
-  },
+  { name: 'The Vision', path: '/vision', children: [] },
 ];
 
 const linkBase = 'transition-colors hover:no-underline';
@@ -45,8 +37,8 @@ export default function Header() {
       className="sticky top-0 z-50 border-b border-hairline bg-base/80 backdrop-blur-md"
       style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
-      <nav className="mx-auto flex max-w-7xl lg:max-w-9xl items-center justify-between px-4 sm:px-6 lg:px-8 py-3.5 text-md">
-        <div className="font-display text-xl sm:text-2xl font-bold uppercase tracking-[0.07em] leading-none">
+      <nav className="mx-auto flex max-w-7xl lg:max-w-9xl items-center justify-between px-4 py-3.5 text-md sm:px-6 lg:px-8">
+        <div className="font-display text-xl font-bold uppercase leading-none tracking-[0.07em] sm:text-2xl">
           <Link
             to="/home"
             className="bg-gradient-to-r from-accent-soft via-accent-soft to-accent bg-clip-text text-transparent transition-all duration-300 hover:from-ember hover:to-ember hover:no-underline"
@@ -55,94 +47,105 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Mobile toggle */}
         <button
-          className="text-3xl p-2 text-muted hover:text-ink sm:hidden"
-          onClick={() => setMenuOpen(!menuOpen)}
+          className="p-2 text-3xl text-muted hover:text-ink sm:hidden"
+          onClick={() => setMenuOpen((prev) => !prev)}
           aria-label="Toggle menu"
           aria-expanded={menuOpen}
         >
           {menuOpen ? '✕' : '☰'}
         </button>
 
-        {/* Desktop nav */}
         <div className="hidden sm:flex sm:items-center sm:gap-6">
-          {navItems.map((item) => (
-            <div key={item.path} className="relative group">
-              <Link
-                to={item.path}
-                className={clsx(
-                  linkBase,
-                  pathname === item.path
-                    ? 'text-accent font-semibold'
-                    : 'text-muted hover:text-ink'
-                )}
-              >
-                {item.name}
-              </Link>
+          {navItems.map((item) => {
+            const isActive =
+              pathname === item.path ||
+              item.children.some((child) => pathname === child.path);
 
-              {item.children.length > 0 && (
-                <div className="absolute left-0 top-full z-50 mt-2 w-56 origin-top scale-95 rounded-lg border border-hairline bg-surface opacity-0 shadow-lg transition-all duration-150 ease-out group-hover:scale-100 group-hover:opacity-100">
-                  <div className="py-1">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.path}
-                        to={child.path}
-                        className={clsx(
-                          'block px-4 py-2 text-sm transition-colors hover:no-underline',
-                          pathname === child.path
-                            ? 'bg-raised font-medium text-accent'
-                            : 'text-muted hover:bg-raised hover:text-ink'
-                        )}
-                      >
-                        {child.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </nav>
-
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div className="px-4 sm:px-6 pb-4 sm:hidden">
-          <ul className="space-y-4">
-            {navItems.map((item) => (
-              <li key={item.path}>
+            return (
+              <div key={item.path} className="group relative">
                 <Link
                   to={item.path}
                   className={clsx(
-                    'block font-medium hover:no-underline',
-                    pathname === item.path ? 'text-accent' : 'text-ink'
+                    linkBase,
+                    isActive
+                      ? 'font-semibold text-accent'
+                      : 'text-muted hover:text-ink'
                   )}
-                  onClick={() => setMenuOpen(false)}
                 >
                   {item.name}
                 </Link>
 
                 {item.children.length > 0 && (
-                  <ul className="mt-2 ml-4 space-y-2 border-l border-hairline pl-4">
-                    {item.children.map((child) => (
-                      <li key={child.path}>
+                  <div className="absolute left-0 top-full z-50 mt-2 w-56 origin-top scale-95 rounded-lg border border-hairline bg-surface opacity-0 shadow-lg transition-all duration-150 ease-out group-hover:scale-100 group-hover:opacity-100">
+                    <div className="py-1">
+                      {item.children.map((child) => (
                         <Link
+                          key={child.path}
                           to={child.path}
                           className={clsx(
-                            'block text-sm hover:no-underline',
-                            pathname === child.path ? 'text-accent' : 'text-muted hover:text-ink'
+                            'block px-4 py-2 text-sm transition-colors hover:no-underline',
+                            pathname === child.path
+                              ? 'bg-raised font-medium text-accent'
+                              : 'text-muted hover:bg-raised hover:text-ink'
                           )}
-                          onClick={() => setMenuOpen(false)}
                         >
                           {child.name}
                         </Link>
-                      </li>
-                    ))}
-                  </ul>
+                      ))}
+                    </div>
+                  </div>
                 )}
-              </li>
-            ))}
+              </div>
+            );
+          })}
+        </div>
+      </nav>
+
+      {menuOpen && (
+        <div className="px-4 pb-4 sm:hidden">
+          <ul className="space-y-4">
+            {navItems.map((item) => {
+              const isActive =
+                pathname === item.path ||
+                item.children.some((child) => pathname === child.path);
+
+              return (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    className={clsx(
+                      'block font-medium hover:no-underline',
+                      isActive ? 'text-accent' : 'text-ink'
+                    )}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+
+                  {item.children.length > 0 && (
+                    <ul className="ml-4 mt-2 space-y-2 border-l border-hairline pl-4">
+                      {item.children.map((child) => (
+                        <li key={child.path}>
+                          <Link
+                            to={child.path}
+                            className={clsx(
+                              'block text-sm hover:no-underline',
+                              pathname === child.path
+                                ? 'text-accent'
+                                : 'text-muted hover:text-ink'
+                            )}
+                            onClick={() => setMenuOpen(false)}
+                          >
+                            {child.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
