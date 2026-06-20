@@ -46,7 +46,8 @@ export default function SurveyEngine() {
   const current = questions[safeIndex];
   const isLast = safeIndex >= total - 1;
 
-  const sectionCount = getSectionTrail(questions).length;
+  const sectionTrail = getSectionTrail(questions);
+const sectionCount = sectionTrail.length;
   const sectionIndex = useMemo(() => {
     const seen = new Set();
     for (let i = 0; i <= safeIndex; i++) {
@@ -258,7 +259,11 @@ export default function SurveyEngine() {
 
   return (
     <Screen>
-      <ProgressTracker sectionIndex={sectionIndex} sectionCount={sectionCount} />
+      <ProgressTracker
+  sectionIndex={sectionIndex}
+  sectionCount={sectionCount}
+  sectionTrail={sectionTrail}
+/>
 
       <div className="flex-1 flex items-center">
         <div className="w-full">
