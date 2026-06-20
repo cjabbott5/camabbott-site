@@ -1,32 +1,24 @@
 // src/components/survey/ProgressTracker.jsx
-import React from 'react';
+import React from "react";
 
-export default function ProgressTracker({ current, total, phaseLabel }) {
-  // `current` is 0-based; show 1-based to people.
-  const step = Math.min(current + 1, total);
-  const pct = total > 0 ? Math.round((step / total) * 100) : 0;
+// Section-based progress. Showing "section 4 of 11" is far less anxiety-inducing
+// than "question 27 of 43" for a long, sensitive survey.
+export default function ProgressTracker({ sectionIndex, sectionCount }) {
+  const total = Math.max(sectionCount, 1);
+  const current = Math.min(sectionIndex + 1, total);
 
   return (
     <div className="mb-8">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-muted">
-          {phaseLabel || `Step ${step} of ${total}`}
-        </span>
-        <span className="text-sm text-faint">{pct}%</span>
-      </div>
-
-      <div
-        className="h-1.5 w-full rounded-full bg-hairline overflow-hidden"
-        role="progressbar"
-        aria-valuenow={step}
-        aria-valuemin={1}
-        aria-valuemax={total}
-        aria-label="Survey progress"
-      >
-        <div
-          className="h-full rounded-full bg-accent transition-all duration-300 ease-out"
-          style={{ width: `${pct}%` }}
-        />
+      <div className="flex gap-1.5" role="progressbar" aria-valuenow={current} aria-valuemin={1} aria-valuemax={total} aria-label="Survey progress">
+        {Array.from({ length: total }).map((_, i) => (
+          <div
+            key={i}
+            className={[
+              "h-1.5 flex-1 rounded-full transition-colors duration-300",
+              i <= sectionIndex ? "bg-accent" : "bg-hairline",
+            ].join(" ")}
+          />
+        ))}
       </div>
     </div>
   );

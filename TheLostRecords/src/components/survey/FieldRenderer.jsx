@@ -1,58 +1,60 @@
 // src/components/survey/FieldRenderer.jsx
-import React from 'react';
-import InputComponent from './InputComponent';
-import { shouldDisplayField } from './fieldVisibility';
+import React from "react";
+import InputComponent from "./InputComponent";
+import { shouldDisplayField, getSettingCategory } from "./fieldVisibility";
 
-export default function FieldRenderer({ field, value, onChange, formValues }) {
+export default function FieldRenderer({ field, value, onChange, formValues, autoFocus }) {
   if (!shouldDisplayField(field, formValues)) return null;
 
-  const normalizedOptions = normalizeFieldOptions(field, formValues);
+  const options = resolveOptions(field, formValues);
 
-  // If a dynamic-options field resolved to nothing, hide it entirely.
-  if (field.dynamicOptionsFrom && Array.isArray(normalizedOptions) && normalizedOptions.length === 0) {
+  // A dynamic/category field that resolved to nothing should not render.
+  if (
+    (field.dynamicOptionsFrom || field.optionsByCategory) &&
+    Array.isArray(options) &&
+    options.length === 0
+  ) {
     return null;
   }
 
   return (
-    <div className="mb-8">
-      <InputComponent
-        type={field.type}
-        label={field.label}
-        options={normalizedOptions}
-        value={value}
-        onChange={onChange}
-        name={field.name}
-      />
-    </div>
+    <InputComponent
+      type={field.type}
+      label={field.label}
+      options={options}
+      value={value}
+      onChange={onChange}
+      name={field.name}
+      leftLabel={field.leftLabel}
+      rightLabel={field.rightLabel}
+      placeholder={field.placeholder}
+      multiline={field.multiline}
+      autoFocus={autoFocus}
+    />
   );
 }
 
-function normalizeFieldOptions(field, formValues) {
-  if (field.type === 'grid') {
-    const rows = (field.gridOptions || []).map((item) =>
-      typeof item === 'string' ? { label: item, value: item } : item
-    );
-    const columns = (field.columns || []).map((item) =>
-      typeof item === 'string' ? { label: item, value: item } : item
-    );
-    return { rows, columns };
-  }
-
-  if (field.type === 'slider') {
-    return {
-      min: field.min ?? field.options?.min ?? 0,
-      max: field.max ?? field.options?.max ?? 10,
-      minLabel: field.scaleLabels?.[0] ?? field.options?.minLabel,
-      maxLabel: field.scaleLabels?.[1] ?? field.options?.maxLabel,
-    };
-  }
-
+function resolveOptions(field, formValues) {
+  // dynamic options from another answer (e.g. focusType from careSettings)
   if (field.dynamicOptionsFrom && field.optionsMap) {
-    const sourceValues = formValues?.[field.dynamicOptionsFrom];
-    if (!Array.isArray(sourceValues)) return [];
-    return sourceValues
+    const source = formValues?.[field.dynamicOptionsFrom];
+    if (!Array.isArray(source)) return [];
+    return source
       .filter((v) => field.optionsMap[v])
       .map((v) => ({ label: field.optionsMap[v], value: v }));
+  }
+
+  // options that depend on the person's care-setting category
+  if (field.optionsByCategory) {
+    const cat = getSettingCategory(formValues);
+    const list = (cat && field.optionsByCategory[cat]) || [];
+    return field.allowOther
+      ? [...list, { label: "Something else / hard to name", value: "other" }]
+      : list;
+  }
+
+  if (field.allowOther && Array.isArray(field.options)) {
+    return [...field.options, { label: "Something else", value: "other" }];
   }
 
   return field.options;
