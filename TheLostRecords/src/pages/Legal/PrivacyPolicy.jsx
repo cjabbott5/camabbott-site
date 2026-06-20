@@ -152,10 +152,10 @@ export default function PrivacyPolicy() {
             <p>
               Questions, corrections, or removal requests:{' '}
               <a
-                href="mailto:hello@example.com"
+                href="mailto:camabbott5@gmail.com"
                 className="font-medium text-accent hover:text-accent-soft"
               >
-                hello@example.com
+                camabbott5@gmail.com
               </a>
               . {/* TODO: replace with your real contact address */}
             </p>

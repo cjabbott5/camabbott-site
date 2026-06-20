@@ -93,7 +93,7 @@ export default function Numbers() {
   }));
 
   return (
-    <Layout title="Numbers" subtitle="The data behind the stories.">
+    <Layout>
       <div className="max-w-7xl mx-auto p-6 space-y-12">
         {/* Filters */}
         <FilterPanel filters={filters} setFilters={setFilters} />

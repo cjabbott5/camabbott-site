@@ -6,34 +6,34 @@ import Select from 'react-select';
 const selectStyles = {
   control: (base, state) => ({
     ...base,
-    backgroundColor: '#141A21',
-    borderColor: state.isFocused ? '#56C2E6' : '#2A333F',
+    backgroundColor: '#1F1815',
+    borderColor: state.isFocused ? '#C75B4E' : '#3A2E29',
     boxShadow: 'none',
     minHeight: '48px',
-    ':hover': { borderColor: '#56C2E6' },
+    ':hover': { borderColor: '#C75B4E' },
   }),
   menu: (base) => ({
     ...base,
-    backgroundColor: '#1C242E',
-    border: '1px solid #2A333F',
+    backgroundColor: '#2A211C',
+    border: '1px solid #3A2E29',
     zIndex: 60,
   }),
   option: (base, state) => ({
     ...base,
-    backgroundColor: state.isFocused ? '#243040' : 'transparent',
-    color: '#E8EDF2',
+    backgroundColor: state.isFocused ? '#3A2E29' : 'transparent',
+    color: '#F4EAE2',
     cursor: 'pointer',
   }),
-  multiValue: (base) => ({ ...base, backgroundColor: '#243040' }),
-  multiValueLabel: (base) => ({ ...base, color: '#E8EDF2' }),
+  multiValue: (base) => ({ ...base, backgroundColor: '#9D342E' }),
+  multiValueLabel: (base) => ({ ...base, color: '#FBF2EC' }),
   multiValueRemove: (base) => ({
     ...base,
-    color: '#9AA7B4',
-    ':hover': { backgroundColor: '#56C2E6', color: '#0B0F14' },
+    color: '#FBF2EC',
+    ':hover': { backgroundColor: '#C75B4E', color: '#FBF2EC' },
   }),
-  placeholder: (base) => ({ ...base, color: '#6B7888' }),
-  input: (base) => ({ ...base, color: '#E8EDF2' }),
-  singleValue: (base) => ({ ...base, color: '#E8EDF2' }),
+  placeholder: (base) => ({ ...base, color: '#8A7A70' }),
+  input: (base) => ({ ...base, color: '#F4EAE2' }),
+  singleValue: (base) => ({ ...base, color: '#F4EAE2' }),
 };
 
 const labelClass = 'block text-ink font-semibold mb-3 text-base';
@@ -45,7 +45,7 @@ export default function InputComponent({ type, label, options, value, onChange, 
         <fieldset>
           <legend className={labelClass}>{label}</legend>
           <div className="space-y-3">
-            {options.map((opt) => (
+            {(options || []).map((opt) => (
               <label
                 key={opt.value}
                 className="flex items-center text-ink text-base cursor-pointer"
@@ -102,7 +102,7 @@ export default function InputComponent({ type, label, options, value, onChange, 
             className="w-full p-3 bg-surface text-ink rounded-lg border border-hairline focus:outline-none focus:border-accent"
           >
             <option value="">Select an option</option>
-            {options.map((opt) => (
+            {(options || []).map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
@@ -157,7 +157,10 @@ export default function InputComponent({ type, label, options, value, onChange, 
       );
     }
 
-    case 'grid':
+    case 'grid': {
+      const cols = options?.columns || [];
+      const rows = options?.rows || [];
+      if (cols.length === 0 || rows.length === 0) return null;
       return (
         <div>
           <span className={labelClass}>{label}</span>
@@ -166,7 +169,7 @@ export default function InputComponent({ type, label, options, value, onChange, 
               <thead>
                 <tr>
                   <th className="text-left p-2 text-sm text-muted font-medium">Item</th>
-                  {options.columns.map((col) => (
+                  {cols.map((col) => (
                     <th key={col.value} className="text-center p-2 text-sm text-muted font-medium">
                       {col.label}
                     </th>
@@ -174,10 +177,10 @@ export default function InputComponent({ type, label, options, value, onChange, 
                 </tr>
               </thead>
               <tbody>
-                {options.rows.map((row) => (
+                {rows.map((row) => (
                   <tr key={row.value} className="border-t border-hairline">
                     <td className="p-2">{row.label}</td>
-                    {options.columns.map((col) => (
+                    {cols.map((col) => (
                       <td key={col.value} className="text-center">
                         <input
                           type="radio"
@@ -197,6 +200,14 @@ export default function InputComponent({ type, label, options, value, onChange, 
               </tbody>
             </table>
           </div>
+        </div>
+      );
+    }
+
+    case 'info':
+      return (
+        <div className="bg-surface border border-hairline rounded-lg p-4">
+          <p className="text-muted text-sm leading-relaxed">{label}</p>
         </div>
       );
 

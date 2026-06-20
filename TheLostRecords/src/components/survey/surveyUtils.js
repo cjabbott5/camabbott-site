@@ -4,7 +4,15 @@ import { shouldDisplayField } from './fieldVisibility';
 // Fields in a step that are currently visible given the user's answers.
 export function getVisibleFields(step, formData) {
   if (!step?.fields) return [];
-  return step.fields.filter((f) => shouldDisplayField(f, formData));
+  return step.fields.filter((f) => {
+    if (!shouldDisplayField(f, formData)) return false;
+    if (f.dynamicOptionsFrom && f.optionsMap) {
+      const source = formData?.[f.dynamicOptionsFrom];
+      if (!Array.isArray(source)) return false;
+      return source.some((v) => f.optionsMap[v]);
+    }
+    return true;
+  });
 }
 
 // Steps the user should actually see: any step with at least one visible field.
@@ -49,16 +57,19 @@ export function formatAnswer(field, value) {
         return String(value);
 
       case 'slider': {
-        const min = field?.options?.minLabel;
-        const max = field?.options?.maxLabel;
-        if (min && max) return `${value}  (${min} ↔ ${max})`;
+        const minLabel = field?.scaleLabels?.[0] ?? field?.options?.minLabel;
+        const maxLabel = field?.scaleLabels?.[1] ?? field?.options?.maxLabel;
+        if (minLabel && maxLabel) return `${value}  (${minLabel} ↔ ${maxLabel})`;
         return String(value);
       }
 
       case 'grid': {
-        // value is { rowValue: colValue }
-        const rows = field?.options?.rows || [];
-        const cols = field?.options?.columns || [];
+        const rows = (field?.gridOptions || field?.options?.rows || []).map(
+          (item) => (typeof item === 'string' ? { label: item, value: item } : item)
+        );
+        const cols = (field?.columns || field?.options?.columns || []).map(
+          (item) => (typeof item === 'string' ? { label: item, value: item } : item)
+        );
         const entries = Object.entries(value || {});
         if (entries.length === 0) return null;
         return entries

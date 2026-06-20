@@ -206,7 +206,8 @@ export const patientSurveySchema = [
         type: "slider",
         label: "Did you feel emotionally safe?",
         min: 0,
-        max: 10
+        max: 10,
+        scaleLabels: ["Not at all", "Completely"]
       }
     ]
   },
@@ -237,7 +238,8 @@ export const patientSurveySchema = [
         type: "slider",
         label: "Did you feel listened to by staff?",
         min: 0,
-        max: 10
+        max: 10,
+        scaleLabels: ["Not at all", "Completely"]
       },
       {
         name: "treatmentUnderstanding",
@@ -271,7 +273,8 @@ export const patientSurveySchema = [
         type: "slider",
         label: "Did this experience increase or decrease your trust in mental health providers?",
         min: 0,
-        max: 10
+        max: 10,
+        scaleLabels: ["Much less trust", "Much more trust"]
       },
       {
         name: "avoidance",
@@ -291,6 +294,14 @@ export const patientSurveySchema = [
           { label: "Yes", value: "yes" },
           { label: "No", value: "no" }
         ]
+      },
+      // TODO(cam): decide loop behavior — Option A (full loop with namespaced
+      // answers) vs Option B (defer). Currently implementing Option B.
+      {
+        name: "loopBackNote",
+        type: "info",
+        label: "Thanks for letting us know. You'll be able to add another experience in a future version of this survey.",
+        condition: { field: "loopBack", equals: "yes" }
       }
     ]
   },
@@ -348,7 +359,60 @@ export const patientSurveySchema = [
         name: "stateLocation",
         type: "dropdown",
         label: "Where were you living at the time?",
-        options: [/* list of US states + "Outside U.S." */]
+        options: [
+          { label: "Alabama", value: "AL" },
+          { label: "Alaska", value: "AK" },
+          { label: "Arizona", value: "AZ" },
+          { label: "Arkansas", value: "AR" },
+          { label: "California", value: "CA" },
+          { label: "Colorado", value: "CO" },
+          { label: "Connecticut", value: "CT" },
+          { label: "Delaware", value: "DE" },
+          { label: "Florida", value: "FL" },
+          { label: "Georgia", value: "GA" },
+          { label: "Hawaii", value: "HI" },
+          { label: "Idaho", value: "ID" },
+          { label: "Illinois", value: "IL" },
+          { label: "Indiana", value: "IN" },
+          { label: "Iowa", value: "IA" },
+          { label: "Kansas", value: "KS" },
+          { label: "Kentucky", value: "KY" },
+          { label: "Louisiana", value: "LA" },
+          { label: "Maine", value: "ME" },
+          { label: "Maryland", value: "MD" },
+          { label: "Massachusetts", value: "MA" },
+          { label: "Michigan", value: "MI" },
+          { label: "Minnesota", value: "MN" },
+          { label: "Mississippi", value: "MS" },
+          { label: "Missouri", value: "MO" },
+          { label: "Montana", value: "MT" },
+          { label: "Nebraska", value: "NE" },
+          { label: "Nevada", value: "NV" },
+          { label: "New Hampshire", value: "NH" },
+          { label: "New Jersey", value: "NJ" },
+          { label: "New Mexico", value: "NM" },
+          { label: "New York", value: "NY" },
+          { label: "North Carolina", value: "NC" },
+          { label: "North Dakota", value: "ND" },
+          { label: "Ohio", value: "OH" },
+          { label: "Oklahoma", value: "OK" },
+          { label: "Oregon", value: "OR" },
+          { label: "Pennsylvania", value: "PA" },
+          { label: "Rhode Island", value: "RI" },
+          { label: "South Carolina", value: "SC" },
+          { label: "South Dakota", value: "SD" },
+          { label: "Tennessee", value: "TN" },
+          { label: "Texas", value: "TX" },
+          { label: "Utah", value: "UT" },
+          { label: "Vermont", value: "VT" },
+          { label: "Virginia", value: "VA" },
+          { label: "Washington", value: "WA" },
+          { label: "West Virginia", value: "WV" },
+          { label: "Wisconsin", value: "WI" },
+          { label: "Wyoming", value: "WY" },
+          { label: "District of Columbia", value: "DC" },
+          { label: "Outside the U.S.", value: "OUS" },
+        ]
       },
       {
         name: "whenOccurred",
