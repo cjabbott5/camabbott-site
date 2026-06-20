@@ -10,7 +10,6 @@ html {
 body {
   @apply bg-base text-ink;
   font-feature-settings: "cv05", "ss01";
-  /* subtle warm grain/depth so the near-black never reads flat */
   background-image:
     radial-gradient(120% 90% at 50% -10%, rgba(157, 52, 46, 0.10), transparent 60%),
     radial-gradient(80% 60% at 100% 100%, rgba(230, 169, 92, 0.05), transparent 55%);
@@ -18,7 +17,10 @@ body {
 }
 
 /* Display face on the brand + headings */
-h1, h2, h3, .font-display {
+h1,
+h2,
+h3,
+.font-display {
   font-family: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
   letter-spacing: -0.012em;
 }
@@ -28,7 +30,7 @@ a {
   @apply text-accent-soft hover:text-ember hover:underline;
 }
 
-/* Visible keyboard focus everywhere (accessibility floor) */
+/* Visible keyboard focus everywhere */
 :focus-visible {
   outline: 2px solid #C75B4E;
   outline-offset: 2px;
@@ -36,12 +38,80 @@ a {
 }
 
 /* iOS safe-area helpers */
-.pt-safe { padding-top: env(safe-area-inset-top); }
-.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
 
-/* Respect users who prefer reduced motion (also neutralizes timeline animations) */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Homepage-only scroll rhythm */
+.lr-home-snap {
+  scroll-snap-type: y proximity;
+}
+
+.lr-snap-section {
+  scroll-snap-align: start;
+  scroll-margin-top: 5rem;
+}
+
+/* Better mobile viewport handling */
+@supports (height: 100svh) {
+  .lr-snap-section {
+    min-height: auto;
+  }
+}
+
+/* Decorative animations */
+@keyframes lr-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+
+  50% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+}
+
+@keyframes lr-sweep {
+  0% {
+    transform: translateX(-60%);
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: translateX(60%);
+    opacity: 0;
+  }
+}
+
+.lr-thread-dot {
+  animation: lr-pulse 2.4s ease-in-out infinite;
+}
+
+/* Text wrapping helper */
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Respect users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
+  html {
+    scroll-behavior: auto;
+  }
+
+  .lr-home-snap {
+    scroll-snap-type: none;
+  }
+
   *,
   *::before,
   *::after {
@@ -50,21 +120,4 @@ a {
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-/* Decorative animations */
-@keyframes lr-pulse {
-  0%, 100% { transform: scale(1); opacity: 0.85; }
-  50% { transform: scale(1.35); opacity: 1; }
-}
-
-@keyframes lr-sweep {
-  0% { transform: translateX(-60%); opacity: 0; }
-  30% { opacity: 0.9; }
-  100% { transform: translateX(60%); opacity: 0; }
-}
-
-/* Leading dot that rides the scroll thread */
-.lr-thread-dot {
-  animation: lr-pulse 2.4s ease-in-out infinite;
 }
