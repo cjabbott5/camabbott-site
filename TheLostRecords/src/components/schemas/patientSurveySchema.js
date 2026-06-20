@@ -44,7 +44,7 @@ export const patientSurveySchema = [
     id: "episode-definition",
     title: "Choose One Experience",
     intro:
-      "To make the data easier to compare, please answer about one mental health care experience. It can be positive, negative, mixed, or neutral.",
+     "First, tell us what kinds of mental health care you've experienced. After that, we'll ask you to choose one specific experience to focus on.",
     fields: [
       {
         name: "careSettings",
@@ -64,9 +64,15 @@ export const patientSurveySchema = [
         ],
       },
       {
+  name: "_focusIntro",
+  type: "info",
+  label:
+    "Now choose one experience to focus on. This helps each record describe a single episode of care, instead of mixing multiple experiences together.",
+},
+      {
         name: "focusType",
         type: "radio",
-        label: "For this survey, which one experience should we focus on?",
+        label: "Which type of care should this record focus on?",
         optional: true,
         dynamicOptionsFrom: "careSettings",
         optionsMap: {
@@ -133,14 +139,16 @@ export const patientSurveySchema = [
       {
         name: "whenOccurred",
         type: "radio",
-        label: "When did this happen?",
+        label: "About when did this care experience begin?",
         optional: true,
         options: [
-          { label: "Within the last year", value: "0-1" },
-          { label: "1–3 years ago", value: "1-3" },
-          { label: "4–6 years ago", value: "4-6" },
-          { label: "7+ years ago", value: "7+" },
-          { label: "I'm not sure", value: "unsure" },
+          { label: "Within the last 6 months", value: "0-6m" },
+{ label: "6–12 months ago", value: "6-12m" },
+{ label: "1–2 years ago", value: "1-2y" },
+{ label: "3–5 years ago", value: "3-5y" },
+{ label: "6–10 years ago", value: "6-10y" },
+{ label: "More than 10 years ago", value: "10y-plus" },
+{ label: "I'm not sure", value: "unsure" },
         ],
       },
       {
@@ -184,12 +192,13 @@ export const patientSurveySchema = [
         optional: true,
         options: [
           { label: "Less than 24 hours", value: "<24h" },
-          { label: "1–3 days", value: "1-3d" },
-          { label: "4–7 days", value: "4-7d" },
-          { label: "1–4 weeks", value: "1-4w" },
-          { label: "More than a month", value: ">1m" },
-          { label: "Ongoing", value: "ongoing" },
-          { label: "I'm not sure", value: "unsure" },
+{ label: "1–3 days", value: "1-3d" },
+{ label: "4–7 days", value: "4-7d" },
+{ label: "8–14 days", value: "8-14d" },
+{ label: "15–30 days", value: "15-30d" },
+{ label: "More than 30 days", value: ">30d" },
+{ label: "Ongoing", value: "ongoing" },
+{ label: "I'm not sure", value: "unsure" },
         ],
       },
       {
