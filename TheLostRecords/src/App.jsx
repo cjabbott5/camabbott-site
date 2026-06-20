@@ -16,10 +16,6 @@ import ShareYourStats from './pages/CollectionPages/ShareYourStats';
 import Narratives from './pages/ResponsesPages/Narratives';
 import Numbers from './pages/ResponsesPages/Numbers';
 
-// Subpages — Vision
-import AboutTheFounder from './pages/VisionPages/AboutTheFounder';
-import AboutTheFuture from './pages/VisionPages/AboutTheFuture';
-
 // Legal
 import PrivacyPolicy from './pages/Legal/PrivacyPolicy';
 import TermsOfUse from './pages/Legal/TermsOfUse';
@@ -32,33 +28,24 @@ export default function App() {
     <Router>
       <div className="flex min-h-screen flex-col bg-base text-ink">
         <Routes>
-          {/* Home */}
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
 
-          {/* Collection */}
           <Route path="/collection" element={<TheCollection />} />
           <Route path="/collection/story" element={<ShareYourStory />} />
           <Route path="/collection/stats" element={<ShareYourStats />} />
 
-          {/* The Case */}
-          <Route path="/case" element={<TheCase />} />
-
-          {/* Responses */}
           <Route path="/responses" element={<TheResponses />} />
           <Route path="/responses/narratives" element={<Narratives />} />
           <Route path="/responses/numbers" element={<Numbers />} />
 
-          {/* Vision */}
-          <Route path="/vision" element={<TheVision />} />
-          <Route path="/vision/founder" element={<AboutTheFounder />} />
-          <Route path="/vision/future" element={<AboutTheFuture />} />
+          <Route path="/case" element={<TheCase />} />
 
-          {/* Legal */}
+          <Route path="/vision" element={<TheVision />} />
+
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfUse />} />
 
-          {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
