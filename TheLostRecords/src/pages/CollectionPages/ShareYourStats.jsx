@@ -16,7 +16,7 @@ export default function ShareYourStats() {
                 Anonymous care survey
               </p>
 
-              <h1 className="text-4xl sm:text-5xl text-accent font-bold leading-[0.95] mb-5">
+              <h1 className="text-4xl sm:text-4xl text-accent font-bold leading-[0.95] mb-5">
                 Share Your Stats
               </h1>
 
